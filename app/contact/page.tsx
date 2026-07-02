@@ -105,7 +105,7 @@ export default function ContactPage() {
                   const on = picked.includes(t);
                   return (
                     <button key={t} type="button" onClick={() => toggle(t)}
-                      className={\`rounded-full border px-[15px] py-[9px] text-[13px] transition \${on ? "border-ice bg-ice text-black" : "border-white/[0.11] text-gray hover:border-[rgba(143,183,255,0.34)] hover:text-offwhite"}\`}>
+                      className={`rounded-full border px-[15px] py-[9px] text-[13px] transition ${on ? "border-ice bg-ice text-black" : "border-white/[0.11] text-gray hover:border-[rgba(143,183,255,0.34)] hover:text-offwhite"}`}>
                       {t}
                     </button>
                   );
@@ -142,11 +142,11 @@ export default function ContactPage() {
 
       <Footer />
 
-      <style>{\`
+      <style>{`
         .kk-input{width:100%;background:var(--char);border:1px solid var(--line);border-radius:12px;padding:15px 16px;color:var(--white);font-family:inherit;font-size:15px;transition:.2s}
         .kk-input:focus{outline:none;border-color:var(--line-ice);box-shadow:0 0 0 3px rgba(143,183,255,.12)}
         .kk-input::placeholder{color:var(--gray-d)}
-      \`}</style>
+      `}</style>
     </>
   );
 }
@@ -223,7 +223,7 @@ function InfoCard({ k, v, sub }: { k: string; v?: string; sub: string }) {
     <div className="mb-3 rounded-2xl border border-white/[0.11] bg-white/[0.045] p-[26px]">
       <div className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ice">{k}</div>
       {v && <div className="text-[16px] leading-[1.6]">{v}</div>}
-      <div className={\`text-[14px] leading-[1.6] text-gray \${v ? "mt-2" : ""}\`}>{sub}</div>
+      <div className={`text-[14px] leading-[1.6] text-gray ${v ? "mt-2" : ""}`}>{sub}</div>
     </div>
   );
 }
