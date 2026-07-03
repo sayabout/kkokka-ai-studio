@@ -262,40 +262,122 @@ function Members() {
 }
 
 /* ===== 홈 화면 · 영상 관리 ===== */
+type SiteSettings = {
+  desktop_video_url: string | null; mobile_video_url: string | null; poster_url: string | null;
+  overlay_opacity: number; headline: string; subcopy: string;
+};
 function HomeManage() {
+  const [s, setS] = useState<SiteSettings | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [msg, setMsg] = useState("");
+
+  const load = async () => {
+    try {
+      const res = await fetch("/api/site-settings");
+      const j = await res.json();
+      if (j.ok) setS(j.settings);
+    } catch {}
+  };
+  useEffect(() => { load(); }, []);
+
+  const upload = async (kind: "desktop_video" | "mobile_video" | "poster", file: File) => {
+    setBusy(kind); setMsg("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file); fd.append("kind", kind);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error);
+      const key = kind === "desktop_video" ? "desktop_video_url" : kind === "mobile_video" ? "mobile_video_url" : "poster_url";
+      const patch = { [key]: j.url };
+      const r2 = await fetch("/api/admin/site-settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) });
+      const j2 = await r2.json();
+      if (!j2.ok) throw new Error(j2.error);
+      setS((prev) => prev ? { ...prev, ...patch } : prev);
+      setMsg("✓ 업로드 완료");
+    } catch (e: any) { setMsg("⚠ " + e.message); }
+    setBusy(null);
+  };
+
+  const saveCopy = async () => {
+    if (!s) return;
+    setBusy("copy"); setMsg("");
+    try {
+      const res = await fetch("/api/admin/site-settings", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ headline: s.headline, subcopy: s.subcopy, overlay_opacity: s.overlay_opacity }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error);
+      setMsg("✓ 저장되었습니다");
+    } catch (e: any) { setMsg("⚠ " + e.message); }
+    setBusy(null);
+  };
+
+  const slots: { key: "desktop_video" | "mobile_video" | "poster"; label: string; urlKey: keyof SiteSettings }[] = [
+    { key: "desktop_video", label: "PC용 영상 (hero.mp4)", urlKey: "desktop_video_url" },
+    { key: "mobile_video", label: "모바일 영상 (hero-mobile.mp4)", urlKey: "mobile_video_url" },
+    { key: "poster", label: "포스터 이미지 (hero-poster.jpg)", urlKey: "poster_url" },
+  ];
+
   return (
     <>
-      <Head title="홈 화면 · 영상 관리" desc="히어로 배경 영상 변경·추가·삭제·순서 + 메인 카피 수정 (2단계 Supabase Storage 연결)" />
+      <Head title="홈 화면 · 영상 관리" desc="히어로 배경 영상 변경 + 메인 카피 수정 (Supabase Storage 연결됨)" />
       <Card>
         <h2 className="mb-4 text-[15px] font-extrabold">🎬 배경 영상</h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          {["PC용 영상 (hero.mp4)", "모바일 영상 (hero-mobile.mp4)", "포스터 이미지 (hero-poster.jpg)"].map((t) => (
-            <div key={t} className="rounded-xl border border-dashed border-[#cfd8e6] bg-[#f7f9ff] p-5 text-center">
-              <div className="mb-2 text-[13px] font-bold text-[#1a3a66]">{t}</div>
-              <div className="mb-3 text-[11px] text-[#6b6b63]">파일 업로드 또는 URL 등록</div>
-              <button className="rounded-lg border border-[#cfd8e6] bg-white px-4 py-2 text-[12px]">업로드 (2단계)</button>
+          {slots.map(({ key, label, urlKey }) => (
+            <div key={key} className="rounded-xl border border-dashed border-[#cfd8e6] bg-[#f7f9ff] p-5 text-center">
+              <div className="mb-2 text-[13px] font-bold text-[#1a3a66]">{label}</div>
+              <div className="mb-3 truncate text-[11px] text-[#6b6b63]" title={s?.[urlKey] as string || ""}>
+                {s?.[urlKey] ? "등록됨 ✓" : "미등록"}
+              </div>
+              <label className="inline-block cursor-pointer rounded-lg border border-[#cfd8e6] bg-white px-4 py-2 text-[12px] hover:bg-[#eef4ff]">
+                {busy === key ? "업로드 중..." : "파일 선택 · 업로드"}
+                <input type="file" accept={key === "poster" ? "image/*" : "video/*"} className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(key, f); }} />
+              </label>
             </div>
           ))}
         </div>
+        {msg && <p className="mt-3 text-[12px] text-[#1a3a66]">{msg}</p>}
         <div className="mt-4 rounded-xl border border-[#f3d9b3] bg-[#fef8ec] p-4 text-[12px] leading-[1.8] text-[#7a5a1a]">
-          <b>⚠ 영상 업로드가 안 될 때</b><br />
-          · 파일이 너무 크면 실패할 수 있어요 → 웹용 압축본(5~12MB) 사용<br />
-          · 영상 대신 <b>포스터 이미지만</b> 등록해도 정상 작동합니다<br />
-          · 외부 스토리지 <b>URL로 등록</b>하는 방법도 지원합니다
+          <b>⚠ 안내</b><br />
+          · 웹용 압축본(5~12MB) 권장. 너무 크면 업로드 실패할 수 있습니다<br />
+          · 영상 대신 포스터 이미지만 등록해도 정상 작동합니다
         </div>
       </Card>
       <Card>
         <h2 className="mb-4 text-[15px] font-extrabold">✍ 메인 카피</h2>
-        <div className="space-y-3">
-          <FieldRow label="메인 헤드라인" value="누구나 AI로 영상을 만듭니다. 문제는 누가 디렉팅하느냐입니다." />
-          <FieldRow label="서브 카피" value="도구는 평준화됐습니다. 남는 건 판단입니다..." />
-          <FieldRow label="오버레이 투명도" value="0.55" />
-        </div>
-        <button className="mt-4 rounded-lg bg-[#1a3a66] px-5 py-2.5 text-[13px] font-semibold text-white">저장 (2단계)</button>
+        {s ? (
+          <div className="space-y-3">
+            <div>
+              <div className="mb-1 text-[12px] text-[#6b6b63]">메인 헤드라인</div>
+              <input className="w-full rounded-lg border border-[#e6e2d6] p-2.5 text-[13px]" value={s.headline}
+                onChange={(e) => setS({ ...s, headline: e.target.value })} />
+            </div>
+            <div>
+              <div className="mb-1 text-[12px] text-[#6b6b63]">서브 카피</div>
+              <input className="w-full rounded-lg border border-[#e6e2d6] p-2.5 text-[13px]" value={s.subcopy}
+                onChange={(e) => setS({ ...s, subcopy: e.target.value })} />
+            </div>
+            <div>
+              <div className="mb-1 text-[12px] text-[#6b6b63]">오버레이 투명도 (0~1, 클수록 어두움)</div>
+              <input className="w-full rounded-lg border border-[#e6e2d6] p-2.5 text-[13px]" type="number" step="0.05" min={0} max={1}
+                value={s.overlay_opacity} onChange={(e) => setS({ ...s, overlay_opacity: Number(e.target.value) })} />
+            </div>
+          </div>
+        ) : (
+          <div className="text-[13px] text-[#6b6b63]">불러오는 중...</div>
+        )}
+        <button onClick={saveCopy} disabled={busy === "copy" || !s} className="mt-4 rounded-lg bg-[#1a3a66] px-5 py-2.5 text-[13px] font-semibold text-white disabled:opacity-60">
+          {busy === "copy" ? "저장 중..." : "저장"}
+        </button>
       </Card>
     </>
   );
 }
+
 function FieldRow({ label, value }: { label: string; value: string }) {
   return (
     <div>

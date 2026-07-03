@@ -3,6 +3,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
 import WorkCard, { Work } from "@/components/WorkCard";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export const revalidate = 0;
 
 const PREVIEW_WORKS: Work[] = [
   { code: "PC-01", year: "2026", category: "Public Campaign", title: "공공 캠페인 프리뷰", tint: "t-blue", live: true },
@@ -17,14 +20,29 @@ const PROCESS = [
   { n: "04", en: "Delivery", kr: "납품", dur: "~ 1 week", desc: "플랫폼별 형식으로 납품합니다." },
 ];
 
-export default function Home() {
+async function getSiteSettings() {
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase.from("site_settings").select("*").eq("id", 1).single();
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export default async function Home() {
+  const settings = await getSiteSettings();
+  const videoSrc = settings?.desktop_video_url || "/videos/hero.mp4";
+  const posterSrc = settings?.poster_url || undefined;
+  const overlayOpacity = settings?.overlay_opacity ?? 0.55;
+
   return (
     <>
       <Header />
 
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-screen items-center overflow-hidden bg-black">
-        <HeroVideo videoSrc="/videos/hero.mp4" />
+        <HeroVideo videoSrc={videoSrc} posterSrc={posterSrc} overlayOpacity={overlayOpacity} />
         <div className="relative z-[4] mx-auto w-full max-w-[1240px] px-8">
           <div className="mb-6 flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.22em] text-ice before:h-px before:w-[34px] before:bg-ice before:opacity-70">
             AI Directing Studio by SAYABOUT

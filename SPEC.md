@@ -409,3 +409,14 @@ kkokka-ai-studio/
 ---
 
 *문서 끝. 변경 시 이 파일을 먼저 업데이트할 것.*
+
+### 관리자 홈영상 업로드 연결 (완료, SQL+Storage 버킷 필요)
+- SQL: 6666_site_settings.sql (site_settings 테이블, id=1 단일행)
+- API: GET /api/site-settings(공개), POST /api/admin/site-settings(텍스트저장),
+  POST /api/admin/upload(Storage 업로드, formData)
+- 관리자 HomeManage: 파일선택→업로드→URL 자동 DB저장. 카피/오버레이 입력 후 저장버튼
+- 홈페이지(app/page.tsx): 서버컴포넌트로 site_settings 조회, desktop_video_url 있으면
+  그걸 사용, 없으면 기존 /videos/hero.mp4 fallback. 헤드라인 텍스트는 아직 하드코딩
+  (색상 강조 span 있어서 동적화 보류, 서브카피도 하드코딩 유지 — 추후 필요시 연결)
+- ⚠ Supabase에 **site-media 라는 Storage 버킷을 Public으로 생성**해야 업로드 작동함 (수동)
+- kkokka.ai 도메인 구매 완료 → Vercel Domains 연결 진행 중
