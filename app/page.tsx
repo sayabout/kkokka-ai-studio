@@ -24,7 +24,7 @@ export default function Home() {
 
       {/* ===== HERO ===== */}
       <section className="relative flex min-h-screen items-center overflow-hidden bg-black">
-        <HeroVideo />
+        <HeroVideo videoSrc="/videos/hero.mp4" />
         <div className="relative z-[4] mx-auto w-full max-w-[1240px] px-8">
           <div className="mb-6 flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.22em] text-ice before:h-px before:w-[34px] before:bg-ice before:opacity-70">
             AI Directing Studio by SAYABOUT
