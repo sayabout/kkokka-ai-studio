@@ -32,7 +32,13 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-wrap justify-between gap-5 pt-7 font-mono text-[12px] text-gray-dark">
-          <div>© 2026 KKOKKA.AI STUDIO · SAYABOUT. All rights reserved.</div>
+          <div className="max-w-[620px] leading-[1.9] [word-break:keep-all]">
+            <div className="text-gray">KKOKKA.AI STUDIO by 주식회사 세이어바웃</div>
+            <div>상호: 주식회사 세이어바웃 · 대표: 이재연 · 사업자등록번호: 335-88-02111</div>
+            <div>주소: 서울특별시 구로구 디지털로26길 43, 알동 1506호 (구로동, 대륭포스트8차)</div>
+            <div>전화: 1577-5384 · 팩스: 070-8666-7010 · 이메일: sayabout.corp@gmail.com</div>
+            <div className="mt-1.5">© 2026 KKOKKA.AI STUDIO · SAYABOUT. All rights reserved.</div>
+          </div>
           <div className="flex flex-wrap gap-[18px]">
             <Link href="/privacy" className="hover:text-offwhite">개인정보처리방침</Link>
             <Link href="/terms" className="hover:text-offwhite">이용약관</Link>
