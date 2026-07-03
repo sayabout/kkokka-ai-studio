@@ -41,9 +41,6 @@ export default function Header() {
           <span className="hidden items-center gap-2 rounded-full border border-white/[0.11] px-3 py-2 font-mono text-[12.5px] tracking-[0.08em] text-gray sm:flex">
             SEARCH <kbd className="rounded border border-white/[0.11] px-[5px] text-[11px]">⌘K</kbd>
           </span>
-          <Link href="/login" className="hidden font-mono text-[12.5px] text-gray transition hover:text-offwhite sm:inline">
-            로그인
-          </Link>
           <Link
             href="/contact"
             className="flex items-center gap-2 rounded-full border border-[rgba(143,183,255,0.34)] px-[15px] py-[9px] font-mono text-[12.5px] tracking-[0.06em] text-offwhite transition hover:shadow-[0_0_26px_rgba(143,183,255,0.18)]"
