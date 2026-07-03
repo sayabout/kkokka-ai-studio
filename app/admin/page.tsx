@@ -314,10 +314,10 @@ function HomeManage() {
     setBusy(null);
   };
 
-  const slots: { key: "desktop_video" | "mobile_video" | "poster"; label: string; urlKey: keyof SiteSettings }[] = [
-    { key: "desktop_video", label: "PC용 영상 (hero.mp4)", urlKey: "desktop_video_url" },
-    { key: "mobile_video", label: "모바일 영상 (hero-mobile.mp4)", urlKey: "mobile_video_url" },
-    { key: "poster", label: "포스터 이미지 (hero-poster.jpg)", urlKey: "poster_url" },
+  const slots: { key: "desktop_video" | "mobile_video" | "poster"; label: string; urlKey: keyof SiteSettings; spec: string }[] = [
+    { key: "desktop_video", label: "PC용 영상 (hero.mp4)", urlKey: "desktop_video_url", spec: "가로 16:9 · mp4 · 5~12MB" },
+    { key: "mobile_video", label: "모바일 영상 (hero-mobile.mp4)", urlKey: "mobile_video_url", spec: "세로 9:16 · mp4 · 5~10MB" },
+    { key: "poster", label: "포스터 이미지 (hero-poster.jpg)", urlKey: "poster_url", spec: "가로 16:9 · jpg/png" },
   ];
 
   return (
@@ -326,9 +326,10 @@ function HomeManage() {
       <Card>
         <h2 className="mb-4 text-[15px] font-extrabold">🎬 배경 영상</h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          {slots.map(({ key, label, urlKey }) => (
+          {slots.map(({ key, label, urlKey, spec }) => (
             <div key={key} className="rounded-xl border border-dashed border-[#cfd8e6] bg-[#f7f9ff] p-5 text-center">
-              <div className="mb-2 text-[13px] font-bold text-[#1a3a66]">{label}</div>
+              <div className="mb-1 text-[13px] font-bold text-[#1a3a66]">{label}</div>
+              <div className="mb-2 font-mono text-[10px] text-[#8a97a8]">{spec}</div>
               <div className="mb-3 truncate text-[11px] text-[#6b6b63]" title={s?.[urlKey] as string || ""}>
                 {s?.[urlKey] ? "등록됨 ✓" : "미등록"}
               </div>
@@ -341,10 +342,19 @@ function HomeManage() {
           ))}
         </div>
         {msg && <p className="mt-3 text-[12px] text-[#1a3a66]">{msg}</p>}
-        <div className="mt-4 rounded-xl border border-[#f3d9b3] bg-[#fef8ec] p-4 text-[12px] leading-[1.8] text-[#7a5a1a]">
-          <b>⚠ 안내</b><br />
-          · 웹용 압축본(5~12MB) 권장. 너무 크면 업로드 실패할 수 있습니다<br />
-          · 영상 대신 포스터 이미지만 등록해도 정상 작동합니다
+        <div className="mt-4 rounded-xl border border-[#f3d9b3] bg-[#fef8ec] p-4 text-[12px] leading-[1.9] text-[#7a5a1a]">
+          <b>📐 파일 사양 안내</b><br />
+          <b>· PC용 영상</b> : mp4 / 가로형 16:9 (1920×1080 또는 1280×720) / 5~12초 루프 / 5~12MB 권장 / 소리 없음<br />
+          <b>· 모바일 영상</b> : mp4 / 세로형 9:16 (1080×1920 또는 720×1280) / 5~12초 루프 / 5~10MB 권장 / 소리 없음<br />
+          <b>· 포스터 이미지</b> : jpg 또는 png / 가로형 16:9 / 영상 로딩 전 잠깐 보이는 표지 이미지<br />
+          <br />
+          <b>💡 어떻게 조합되나요?</b><br />
+          · 영상 + 포스터를 함께 넣으면 → <b>로딩 순간엔 포스터, 이후 영상 재생</b> (이어달리기)<br />
+          · 영상 없이 포스터만 넣으면 → <b>정지 이미지가 계속 배경</b>으로 표시<br />
+          · PC는 PC영상, 모바일은 모바일영상 사용. 모바일영상이 없으면 PC영상으로 대체됩니다<br />
+          · 셋 다 없으면 → 기본 애니메이션 배경이 나옵니다 (레이아웃 안 깨짐)<br />
+          <br />
+          <b>⚠ 업로드 팁</b> : 파일이 너무 크면(20MB↑) 실패할 수 있어요. 웹용 압축본을 사용하세요.
         </div>
       </Card>
       <Card>
