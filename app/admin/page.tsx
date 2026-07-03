@@ -69,7 +69,7 @@ type Inquiry = {
 };
 type Reply = { id: number; is_admin: boolean; body: string; created_at: string };
 
-const STATUS_LABEL: Record<string, string> = { new: "접수", in_progress: "진행중", closed: "완료" };
+const STATUS_LABEL: Record<string, string> = { new: "접수", in_progress: "진행중", closed: "상담완료" };
 
 function Inquiries() {
   const [rows, setRows] = useState<Inquiry[]>([]);
@@ -207,8 +207,11 @@ function Inquiries() {
                 className="min-h-[90px] w-full rounded-lg border border-[#e6e2d6] p-3 text-[13px]" />
               <div className="mt-3 flex flex-wrap gap-2">
                 <button onClick={sendReply} disabled={busy} className="rounded-lg bg-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-white disabled:opacity-60">답변 등록</button>
+                {open.status === "new" && (
+                  <button onClick={() => changeStatus("in_progress")} disabled={busy} className="rounded-lg border border-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-[#1a3a66]">→ 진행중으로</button>
+                )}
                 {open.status !== "closed" ? (
-                  <button onClick={() => changeStatus("closed")} disabled={busy} className="rounded-lg border border-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-[#1a3a66]">✓ 완료 처리</button>
+                  <button onClick={() => changeStatus("closed")} disabled={busy} className="rounded-lg border border-[#1a3a66] bg-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-white">✓ 상담완료</button>
                 ) : (
                   <button onClick={() => changeStatus("in_progress")} disabled={busy} className="rounded-lg border border-[#e6e2d6] px-4 py-2 text-[13px]">진행중으로 되돌리기</button>
                 )}

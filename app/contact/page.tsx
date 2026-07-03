@@ -10,11 +10,11 @@ const PAGE_SIZE = 10;
 
 type ListRow = { id: number; ref_no: string | null; title: string; status: string; created_at: string };
 
-// 접수 후 24시간 지나면 '진행중'으로 표시 (완료는 서버 상태 우선)
+// 접수 후 15분 지나면 '진행중'으로 표시 (완료는 서버 상태 우선)
 function displayStatus(status: string, created_at: string): { label: string; cls: string } {
-  if (status === "closed") return { label: "완료", cls: "border-white/20 text-gray" };
-  const over24h = Date.now() - new Date(created_at).getTime() > 24 * 3600 * 1000;
-  if (status === "new" && !over24h) return { label: "접수", cls: "border-[rgba(143,183,255,0.5)] text-ice" };
+  if (status === "closed") return { label: "상담완료", cls: "border-white/20 text-gray" };
+  const over15m = Date.now() - new Date(created_at).getTime() > 15 * 60 * 1000;
+  if (status === "new" && !over15m) return { label: "접수", cls: "border-[rgba(143,183,255,0.5)] text-ice" };
   return { label: "진행중", cls: "border-[rgba(143,183,255,0.34)] text-ice" };
 }
 
