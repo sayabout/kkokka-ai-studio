@@ -397,86 +397,133 @@ function FieldRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-/* ===== 관리자 메모 (게시판) ===== */
-type Memo = { id: number; title: string; body: string; date: string; author: string };
+/* ===== 관리자 메모 (DB 저장 · 수정 가능) ===== */
+type MemoRow = { id: number; title: string; body: string; created_at: string; updated_at: string; author: string };
+
 function Memo() {
-  const [memos, setMemos] = useState<Memo[]>([
-    { id: 1, title: "1차 오픈 체크리스트", body: "홈·Works·Process·About·Contact 배포 확인 후 2단계(로그인) 진행.", date: "2026-07-02", author: "SAYABOUT" },
-  ]);
-  const [view, setView] = useState<"list" | "new" | number>("list");
+  const [memos, setMemos] = useState<MemoRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"list" | "write" | number>("list");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [editId, setEditId] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  const save = () => {
-    if (!title.trim()) { alert("제목을 입력하세요"); return; }
-    const id = memos.length ? Math.max(...memos.map((m) => m.id)) + 1 : 1;
-    setMemos([...memos, { id, title, body, date: new Date().toISOString().slice(0, 10), author: "SAYABOUT" }]);
-    setTitle(""); setBody(""); setView("list");
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/memos");
+      const j = await res.json();
+      if (j.ok) setMemos(j.memos);
+    } catch {}
+    setLoading(false);
   };
-  const del = (id: number) => { if (confirm("삭제할까요?")) { setMemos(memos.filter((m) => m.id !== id)); setView("list"); } };
+  useEffect(() => { load(); }, []);
 
-  if (view === "new") {
+  const startWrite = () => { setEditId(null); setTitle(""); setBody(""); setView("write"); };
+  const startEdit = (m: MemoRow) => { setEditId(m.id); setTitle(m.title); setBody(m.body); setView("write"); };
+
+  const save = async () => {
+    if (!title.trim()) { alert("제목을 입력하세요."); return; }
+    setBusy(true);
+    try {
+      if (editId) {
+        await fetch("/api/admin/memos", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editId, title, body }) });
+      } else {
+        await fetch("/api/admin/memos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, body }) });
+      }
+      await load();
+      setView("list");
+    } catch (e: any) { alert("저장 실패: " + e.message); }
+    setBusy(false);
+  };
+
+  const del = async (id: number) => {
+    if (!confirm("삭제할까요?")) return;
+    setBusy(true);
+    try {
+      await fetch("/api/admin/memos", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+      await load();
+      setView("list");
+    } catch {}
+    setBusy(false);
+  };
+
+  // 작성/수정 화면
+  if (view === "write") {
     return (
       <>
-        <Head title="📝 관리자 메모" desc="새 글 쓰기" />
-        <button onClick={() => setView("list")} className="mb-3.5 rounded-lg border border-[#e6e2d6] bg-white px-3 py-1.5 text-[13px]">← 목록으로</button>
+        <Head title={editId ? "📝 메모 수정" : "📝 새 메모 작성"} desc="DB에 저장되어 새로고침해도 사라지지 않습니다." />
         <Card>
-          <div className="mb-3.5"><label className="mb-1.5 block text-[12px] font-bold text-[#6b6b63]">제목</label>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-lg border border-[#e6e2d6] px-3 py-2.5 text-[13px]" placeholder="제목을 입력하세요" /></div>
-          <div className="mb-3.5"><label className="mb-1.5 block text-[12px] font-bold text-[#6b6b63]">본문</label>
-            <textarea value={body} onChange={(e) => setBody(e.target.value)} className="min-h-[160px] w-full rounded-lg border border-[#e6e2d6] px-3 py-2.5 text-[13px]" placeholder="내용을 입력하세요" /></div>
-          <div className="flex gap-2">
-            <button onClick={save} className="rounded-lg bg-[#1a3a66] px-5 py-2.5 text-[13px] font-semibold text-white">등록</button>
-            <button onClick={() => setView("list")} className="rounded-lg border border-[#e6e2d6] bg-white px-5 py-2.5 text-[13px]">취소</button>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목"
+            className="mb-3 w-full rounded-lg border border-[#e6e2d6] p-2.5 text-[14px] font-semibold" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="내용 (운영 매뉴얼, 변경사항 등 자유롭게)"
+            className="min-h-[280px] w-full rounded-lg border border-[#e6e2d6] p-3 text-[13px] leading-[1.8]" />
+          <div className="mt-3 flex gap-2">
+            <button onClick={save} disabled={busy} className="rounded-lg bg-[#1a3a66] px-5 py-2.5 text-[13px] font-semibold text-white disabled:opacity-60">
+              {busy ? "저장 중..." : "저장"}
+            </button>
+            <button onClick={() => setView("list")} className="rounded-lg border border-[#e6e2d6] px-5 py-2.5 text-[13px]">취소</button>
           </div>
         </Card>
       </>
     );
   }
+
+  // 상세 화면
   if (typeof view === "number") {
     const m = memos.find((x) => x.id === view);
-    if (m) return (
+    if (!m) { setView("list"); return null; }
+    return (
       <>
         <Head title="📝 관리자 메모" />
-        <button onClick={() => setView("list")} className="mb-3.5 rounded-lg border border-[#e6e2d6] bg-white px-3 py-1.5 text-[13px]">← 목록으로</button>
         <Card>
-          <h2 className="mb-1.5 text-[18px] font-extrabold">{m.title}</h2>
-          <div className="mb-4 text-[12px] text-[#6b6b63]">✍ {m.author} · {m.date} · 번호 {m.id}</div>
-          <div className="whitespace-pre-wrap text-[14px] leading-[1.7]">{m.body}</div>
-          <div className="mt-4 flex gap-2">
-            <button onClick={() => setView("list")} className="rounded-lg border border-[#e6e2d6] bg-white px-4 py-2 text-[13px]">목록</button>
-            <button onClick={() => del(m.id)} className="rounded-lg border border-[#f0c0b8] bg-white px-4 py-2 text-[13px] text-[#c0392b]">삭제</button>
+          <div className="mb-2 flex items-start justify-between gap-3">
+            <h2 className="text-[18px] font-extrabold">{m.title}</h2>
+            <div className="flex flex-none gap-2">
+              <button onClick={() => startEdit(m)} className="rounded-lg border border-[#1a3a66] px-3 py-1.5 text-[12px] font-semibold text-[#1a3a66]">수정</button>
+              <button onClick={() => del(m.id)} className="rounded-lg border border-[#e0b0b0] px-3 py-1.5 text-[12px] text-[#c0392b]">삭제</button>
+            </div>
           </div>
+          <div className="mb-4 font-mono text-[11px] text-[#6b6b63]">
+            {m.author} · 작성 {(m.created_at||"").slice(0,10)}
+            {m.updated_at && m.updated_at !== m.created_at && ` · 수정 ${m.updated_at.slice(0,10)}`}
+          </div>
+          <div className="whitespace-pre-wrap rounded-lg bg-[#f6f6f4] p-4 text-[13px] leading-[1.85]">{m.body || "(내용 없음)"}</div>
+          <button onClick={() => setView("list")} className="mt-4 rounded-lg border border-[#e6e2d6] px-5 py-2.5 text-[13px]">← 목록</button>
         </Card>
       </>
     );
   }
+
+  // 목록 화면
   return (
     <>
-      <Head title="📝 관리자 메모" desc="운영 메모 게시판 (네이버 카페형) — 목록·작성·상세·삭제" />
+      <Head title="📝 관리자 메모" desc="운영 메모 (DB 저장 · 수정/삭제 가능). 중요 변경사항·매뉴얼을 기록하세요." />
       <Card>
-        <div className="mb-3.5 flex items-center">
+        <div className="mb-3 flex items-center">
           <h2 className="text-[15px] font-extrabold">운영 메모 ({memos.length}개)</h2>
-          <button onClick={() => setView("new")} className="ml-auto rounded-lg bg-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-white">✏ 새 글 쓰기</button>
+          <button onClick={startWrite} className="ml-auto rounded-lg bg-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-white">+ 새 메모</button>
         </div>
-        <div className="overflow-x-auto rounded-xl border border-[#e6e2d6]">
-          <table className="w-full border-collapse text-[13px]">
-            <thead><tr>
-              <th className="w-[60px] bg-[#1a3a66] px-3.5 py-2.5 text-left text-white">번호</th>
-              <th className="bg-[#1a3a66] px-3.5 py-2.5 text-left text-white">제목</th>
-              <th className="w-[130px] bg-[#1a3a66] px-3.5 py-2.5 text-left text-white">작성일</th>
-            </tr></thead>
-            <tbody>
-              {memos.slice().sort((a, b) => b.id - a.id).map((m) => (
-                <tr key={m.id} onClick={() => setView(m.id)} className="cursor-pointer hover:bg-[#f9fbff]">
-                  <td className="border-b border-[#e6e2d6] px-3.5 py-2.5 text-center font-mono text-[#6b6b63]">{m.id}</td>
-                  <td className="border-b border-[#e6e2d6] px-3.5 py-2.5">{m.title}</td>
-                  <td className="border-b border-[#e6e2d6] px-3.5 py-2.5">{m.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {loading ? (
+          <div className="p-8 text-center text-[13px] text-[#6b6b63]">불러오는 중...</div>
+        ) : memos.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[#e6e2d6] p-10 text-center text-[13px] text-[#6b6b63]">
+            아직 메모가 없습니다. "+ 새 메모"로 첫 기록을 남겨보세요.
+          </div>
+        ) : (
+          <div className="divide-y divide-[#eee]">
+            {memos.map((m) => (
+              <div key={m.id} onClick={() => setView(m.id)} className="flex cursor-pointer items-center gap-3 py-3 hover:bg-[#faf9f6]">
+                <div className="flex-1">
+                  <div className="text-[14px] font-semibold">{m.title}</div>
+                  <div className="mt-0.5 truncate text-[12px] text-[#6b6b63]">{m.body?.slice(0, 60) || "(내용 없음)"}</div>
+                </div>
+                <div className="flex-none font-mono text-[11px] text-[#8a97a8]">{(m.updated_at||m.created_at||"").slice(0,10)}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
     </>
   );

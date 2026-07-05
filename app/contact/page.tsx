@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { createClient } from "@/lib/supabase/client";
 
 const TYPES = ["Public Campaign", "Brand Film", "Short-form Ads", "Product Visual", "Pre-visual", "AI World-building"];
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 15;
 
 type ListRow = { id: number; ref_no: string | null; title: string; status: string; created_at: string };
 
