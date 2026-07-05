@@ -540,6 +540,10 @@ type WorkRow = {
 
 function WorksManage() {
   const [rows, setRows] = useState<WorkRow[]>([]);
+  const [q, setQ] = useState("");
+  const [cat, setCat] = useState("전체");
+  const [page, setPage] = useState(1);
+  const PER = 20;
   const [loading, setLoading] = useState(true);
   const [edit, setEdit] = useState<Partial<WorkRow> | null>(null);
   const [busy, setBusy] = useState(false);
@@ -629,35 +633,76 @@ function WorksManage() {
     );
   }
 
-  // 목록
+  // 목록 (검색 + 카테고리 필터 + 페이징)
+  const filtered = rows.filter((w) => {
+    const okCat = cat === "전체" || w.category === cat;
+    const okQ = !q.trim() || w.title.toLowerCase().includes(q.trim().toLowerCase());
+    return okCat && okQ;
+  });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER));
+  const curPage = Math.min(page, totalPages);
+  const pageRows = filtered.slice((curPage - 1) * PER, curPage * PER);
+  const catCount = (c: string) => c === "전체" ? rows.length : rows.filter((w) => w.category === c).length;
+
   return (
     <>
       <Head title="포트폴리오 관리" desc="Works에 노출되는 포트폴리오. 영상은 유튜브/비메오 링크로 등록합니다." />
       <Card>
-        <div className="mb-3 flex items-center">
-          <h2 className="text-[15px] font-extrabold">포트폴리오 ({rows.length}개)</h2>
-          <button onClick={() => setEdit(blank())} className="ml-auto rounded-lg bg-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-white">+ 새 포트폴리오</button>
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <h2 className="text-[15px] font-extrabold">포트폴리오 ({filtered.length}개{q || cat !== "전체" ? ` / 전체 ${rows.length}` : ""})</h2>
+          <div className="ml-auto flex items-center gap-2">
+            <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="제목 검색..."
+              className="w-[200px] rounded-lg border border-[#e6e2d6] px-3 py-2 text-[13px]" />
+            <button onClick={() => setEdit(blank())} className="flex-none rounded-lg bg-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-white">+ 새 포트폴리오</button>
+          </div>
         </div>
+
+        {/* 카테고리 필터 */}
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {["전체", ...WORK_CATS].map((c) => (
+            <button key={c} onClick={() => { setCat(c); setPage(1); }}
+              className={`rounded-full border px-3 py-1.5 text-[12px] ${cat === c ? "border-[#1a3a66] bg-[#1a3a66] text-white" : "border-[#e6e2d6] bg-white text-[#555] hover:bg-[#f4f6fb]"}`}>
+              {c} <span className="opacity-60">{catCount(c)}</span>
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <div className="p-8 text-center text-[13px] text-[#6b6b63]">불러오는 중...</div>
         ) : rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#e6e2d6] p-10 text-center text-[13px] text-[#6b6b63]">아직 등록된 포트폴리오가 없습니다. "+ 새 포트폴리오"로 추가하세요.</div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[#e6e2d6] p-10 text-center text-[13px] text-[#6b6b63]">검색/필터 결과가 없습니다.</div>
         ) : (
-          <div className="divide-y divide-[#eee]">
-            {rows.map((w) => (
-              <div key={w.id} onClick={() => setEdit(w)} className="flex cursor-pointer items-center gap-3 py-3 hover:bg-[#faf9f6]">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-semibold">{w.title}</span>
-                    {w.is_featured && <span className="rounded-full bg-[#e3f0ff] px-2 py-0.5 text-[10px] font-bold text-[#1a3a66]">홈노출</span>}
-                    {!w.is_public && <span className="rounded-full bg-[#f0f0f0] px-2 py-0.5 text-[10px] text-[#888]">비공개</span>}
+          <>
+            <div className="divide-y divide-[#eee]">
+              {pageRows.map((w) => (
+                <div key={w.id} onClick={() => setEdit(w)} className="flex cursor-pointer items-center gap-3 py-3 hover:bg-[#faf9f6]">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[14px] font-semibold">{w.title}</span>
+                      {w.is_featured && <span className="rounded-full bg-[#e3f0ff] px-2 py-0.5 text-[10px] font-bold text-[#1a3a66]">홈노출</span>}
+                      {!w.is_public && <span className="rounded-full bg-[#f0f0f0] px-2 py-0.5 text-[10px] text-[#888]">비공개</span>}
+                    </div>
+                    <div className="mt-0.5 text-[12px] text-[#6b6b63]">{w.category} · {w.year || "-"} {w.video_url ? "· 🎬영상" : ""}</div>
                   </div>
-                  <div className="mt-0.5 text-[12px] text-[#6b6b63]">{w.category} · {w.year || "-"} {w.video_url ? "· 🎬영상" : ""}</div>
+                  <div className="flex-none font-mono text-[11px] text-[#8a97a8]">#{w.sort_order}</div>
                 </div>
-                <div className="flex-none font-mono text-[11px] text-[#8a97a8]">#{w.sort_order}</div>
+              ))}
+            </div>
+
+            {/* 페이징 */}
+            {totalPages > 1 && (
+              <div className="mt-4 flex justify-center gap-1.5">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button key={p} onClick={() => setPage(p)}
+                    className={`h-8 min-w-8 rounded-lg border px-2.5 text-[12px] ${p === curPage ? "border-[#1a3a66] bg-[#1a3a66] text-white" : "border-[#e6e2d6] bg-white text-[#555]"}`}>
+                    {p}
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </Card>
     </>
