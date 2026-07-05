@@ -17,7 +17,7 @@ type Work = {
 function getThumb(w: Work): string | null {
   if (w.thumbnail_url) return w.thumbnail_url;
   const u = w.video_url || "";
-  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
+  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
   if (yt) return `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`;
   return null;
 }

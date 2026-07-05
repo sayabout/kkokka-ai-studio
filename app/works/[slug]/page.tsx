@@ -13,7 +13,7 @@ type Work = {
 // 유튜브/비메오 임베드 URL 변환
 function getEmbed(url: string | null): string | null {
   if (!url) return null;
-  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
+  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
   if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
   const vm = url.match(/vimeo\.com\/(\d+)/);
   if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
@@ -41,6 +41,7 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
   }, [params.slug]);
 
   const embed = work ? getEmbed(work.video_url) : null;
+  const isShorts = !!(work?.video_url && /shorts\//.test(work.video_url));
 
   return (
     <>
@@ -63,7 +64,7 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
 
             {/* 영상 */}
             {embed ? (
-              <div className="mt-8 aspect-video overflow-hidden rounded-2xl border border-white/[0.11] bg-black">
+              <div className={`mt-8 overflow-hidden rounded-2xl border border-white/[0.11] bg-black ${isShorts ? "mx-auto aspect-[9/16] max-w-[380px]" : "aspect-video"}`}>
                 <iframe src={embed} className="h-full w-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               </div>
             ) : work.video_url ? (
