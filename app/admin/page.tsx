@@ -12,9 +12,10 @@ export default function AdminPage() {
       {page === "inquiries" && <Inquiries />}
       {page === "members" && <Members />}
       {page === "home" && <HomeManage />}
+      {page === "works" && <WorksManage />}
       {page === "memo" && <Memo />}
       {page === "footer" && <FooterManage />}
-      {!["dashboard", "inquiries", "members", "home", "memo", "footer"].includes(page) && (
+      {!["dashboard", "inquiries", "members", "home", "works", "memo", "footer"].includes(page) && (
         <Placeholder id={page} />
       )}
     </AdminShell>
@@ -527,6 +528,143 @@ function Memo() {
       </Card>
     </>
   );
+}
+
+/* ===== 포트폴리오(Works) 관리 ===== */
+const WORK_CATS = ["Public Campaign", "Brand Film", "Short-form Ads", "Product Visual", "Pre-visual", "AI World-building"];
+type WorkRow = {
+  id: number; title: string; category: string; client_type: string | null; year: string | null;
+  video_url: string | null; thumbnail_url: string | null; description: string;
+  is_public: boolean; is_featured: boolean; sort_order: number;
+};
+
+function WorksManage() {
+  const [rows, setRows] = useState<WorkRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [edit, setEdit] = useState<Partial<WorkRow> | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/works");
+      const j = await res.json();
+      if (j.ok) setRows(j.works);
+    } catch {}
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const blank = (): Partial<WorkRow> => ({ title: "", category: "Brand Film", year: String(new Date().getFullYear()), video_url: "", thumbnail_url: "", description: "", is_public: true, is_featured: false, sort_order: 0 });
+
+  const save = async () => {
+    if (!edit?.title?.trim()) { alert("제목을 입력하세요."); return; }
+    setBusy(true);
+    try {
+      const method = edit.id ? "PATCH" : "POST";
+      const res = await fetch("/api/admin/works", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(edit) });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error);
+      await load();
+      setEdit(null);
+    } catch (e: any) { alert("저장 실패: " + e.message); }
+    setBusy(false);
+  };
+
+  const del = async (id: number) => {
+    if (!confirm("삭제할까요?")) return;
+    setBusy(true);
+    try {
+      await fetch("/api/admin/works", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+      await load();
+      setEdit(null);
+    } catch {}
+    setBusy(false);
+  };
+
+  // 편집 폼
+  if (edit) {
+    const f = edit;
+    const set = (k: keyof WorkRow, v: any) => setEdit({ ...f, [k]: v });
+    return (
+      <>
+        <Head title={f.id ? "포트폴리오 수정" : "새 포트폴리오 등록"} desc="영상은 유튜브/비메오 링크를 붙여넣으세요." />
+        <Card>
+          <div className="space-y-3">
+            <FieldA label="제목 *"><input className="ii" value={f.title || ""} onChange={(e) => set("title", e.target.value)} placeholder="예: OO시 공공 캠페인 필름" /></FieldA>
+            <div className="grid grid-cols-2 gap-3">
+              <FieldA label="카테고리">
+                <select className="ii" value={f.category} onChange={(e) => set("category", e.target.value)}>
+                  {WORK_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </FieldA>
+              <FieldA label="연도"><input className="ii" value={f.year || ""} onChange={(e) => set("year", e.target.value)} placeholder="2026" /></FieldA>
+            </div>
+            <FieldA label="클라이언트 유형 (선택)"><input className="ii" value={f.client_type || ""} onChange={(e) => set("client_type", e.target.value)} placeholder="예: 공공기관 / 브랜드 (실명 대신 유형)" /></FieldA>
+            <FieldA label="영상 링크 (유튜브/비메오)"><input className="ii" value={f.video_url || ""} onChange={(e) => set("video_url", e.target.value)} placeholder="https://youtu.be/... 또는 https://vimeo.com/..." /></FieldA>
+            <FieldA label="썸네일 이미지 URL (선택)"><input className="ii" value={f.thumbnail_url || ""} onChange={(e) => set("thumbnail_url", e.target.value)} placeholder="https://... (비우면 기본 그래픽)" /></FieldA>
+            <FieldA label="설명"><textarea className="ii min-h-[90px]" value={f.description || ""} onChange={(e) => set("description", e.target.value)} placeholder="작업 개요, 목적 등" /></FieldA>
+            <div className="grid grid-cols-3 gap-3">
+              <FieldA label="공개 여부">
+                <select className="ii" value={f.is_public ? "1" : "0"} onChange={(e) => set("is_public", e.target.value === "1")}>
+                  <option value="1">공개</option><option value="0">비공개</option>
+                </select>
+              </FieldA>
+              <FieldA label="메인(홈) 노출">
+                <select className="ii" value={f.is_featured ? "1" : "0"} onChange={(e) => set("is_featured", e.target.value === "1")}>
+                  <option value="0">일반</option><option value="1">홈에 노출</option>
+                </select>
+              </FieldA>
+              <FieldA label="정렬(작을수록 앞)"><input className="ii" type="number" value={f.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} /></FieldA>
+            </div>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <button onClick={save} disabled={busy} className="rounded-lg bg-[#1a3a66] px-5 py-2.5 text-[13px] font-semibold text-white disabled:opacity-60">{busy ? "저장 중..." : "저장"}</button>
+            {f.id && <button onClick={() => del(f.id!)} className="rounded-lg border border-[#e0b0b0] px-4 py-2.5 text-[13px] text-[#c0392b]">삭제</button>}
+            <button onClick={() => setEdit(null)} className="ml-auto rounded-lg border border-[#e6e2d6] px-5 py-2.5 text-[13px]">취소</button>
+          </div>
+        </Card>
+        <style>{`.ii{width:100%;border:1px solid #e6e2d6;border-radius:9px;padding:10px 12px;font-size:13px;background:#fff}.ii:focus{outline:none;border-color:#9cb8e6}`}</style>
+      </>
+    );
+  }
+
+  // 목록
+  return (
+    <>
+      <Head title="포트폴리오 관리" desc="Works에 노출되는 포트폴리오. 영상은 유튜브/비메오 링크로 등록합니다." />
+      <Card>
+        <div className="mb-3 flex items-center">
+          <h2 className="text-[15px] font-extrabold">포트폴리오 ({rows.length}개)</h2>
+          <button onClick={() => setEdit(blank())} className="ml-auto rounded-lg bg-[#1a3a66] px-4 py-2 text-[13px] font-semibold text-white">+ 새 포트폴리오</button>
+        </div>
+        {loading ? (
+          <div className="p-8 text-center text-[13px] text-[#6b6b63]">불러오는 중...</div>
+        ) : rows.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[#e6e2d6] p-10 text-center text-[13px] text-[#6b6b63]">아직 등록된 포트폴리오가 없습니다. "+ 새 포트폴리오"로 추가하세요.</div>
+        ) : (
+          <div className="divide-y divide-[#eee]">
+            {rows.map((w) => (
+              <div key={w.id} onClick={() => setEdit(w)} className="flex cursor-pointer items-center gap-3 py-3 hover:bg-[#faf9f6]">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-semibold">{w.title}</span>
+                    {w.is_featured && <span className="rounded-full bg-[#e3f0ff] px-2 py-0.5 text-[10px] font-bold text-[#1a3a66]">홈노출</span>}
+                    {!w.is_public && <span className="rounded-full bg-[#f0f0f0] px-2 py-0.5 text-[10px] text-[#888]">비공개</span>}
+                  </div>
+                  <div className="mt-0.5 text-[12px] text-[#6b6b63]">{w.category} · {w.year || "-"} {w.video_url ? "· 🎬영상" : ""}</div>
+                </div>
+                <div className="flex-none font-mono text-[11px] text-[#8a97a8]">#{w.sort_order}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </>
+  );
+}
+function FieldA({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div><label className="mb-1 block text-[12px] font-semibold text-[#6b6b63]">{label}</label>{children}</div>;
 }
 
 /* ===== 푸터 · 약관 관리 (탭) ===== */
