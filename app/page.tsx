@@ -128,9 +128,10 @@ export default async function Home() {
             {featuredWorks.length > 0 ? (
               featuredWorks.map((w: any) => {
                 const thumb = homeThumb(w);
+                const portrait = w.orientation === "portrait";
                 return (
                   <Link key={w.id} href={`/works/${w.id}`}
-                    className="group relative block aspect-[3/4] overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)]">
+                    className={`group relative block overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)] ${portrait ? "aspect-[9/16]" : "aspect-[3/4]"}`}>
                     {thumb ? (
                       <img src={thumb} alt={w.title} className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-100" />
                     ) : (

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+// 관리자 목록 (비공개 포함 전체)
 export async function GET() {
   try {
     const supabase = createAdminClient();
@@ -13,6 +14,7 @@ export async function GET() {
   }
 }
 
+// 작성
 export async function POST(req: Request) {
   try {
     const b = await req.json();
@@ -24,6 +26,7 @@ export async function POST(req: Request) {
       video_url: b.video_url || null, thumbnail_url: b.thumbnail_url || null,
       description: b.description || "", is_public: b.is_public ?? true,
       is_featured: b.is_featured ?? false, sort_order: b.sort_order ?? 0,
+      orientation: b.orientation || "landscape",
     }).select("*").single();
     if (error) throw error;
     return NextResponse.json({ ok: true, work: data });
@@ -32,13 +35,14 @@ export async function POST(req: Request) {
   }
 }
 
+// 수정
 export async function PATCH(req: Request) {
   try {
     const b = await req.json();
     if (!b.id) return NextResponse.json({ ok: false, error: "id 없음" }, { status: 400 });
     const supabase = createAdminClient();
     const patch: Record<string, any> = { updated_at: new Date().toISOString() };
-    for (const k of ["title","category","client_type","year","video_url","thumbnail_url","description","is_public","is_featured","sort_order"]) {
+    for (const k of ["title","category","client_type","year","video_url","thumbnail_url","description","is_public","is_featured","sort_order","orientation"]) {
       if (b[k] !== undefined) patch[k] = b[k];
     }
     const { error } = await supabase.from("works").update(patch).eq("id", b.id);
@@ -49,6 +53,7 @@ export async function PATCH(req: Request) {
   }
 }
 
+// 삭제
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();

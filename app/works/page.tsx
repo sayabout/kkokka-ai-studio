@@ -10,7 +10,7 @@ const PER = 12;
 
 type Work = {
   id: number; title: string; category: string; client_type: string | null; year: string | null;
-  video_url: string | null; thumbnail_url: string | null; description: string;
+  video_url: string | null; thumbnail_url: string | null; description: string; orientation?: string;
 };
 
 // 유튜브/비메오 링크에서 썸네일 추출
@@ -83,9 +83,10 @@ export default function WorksPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {pageRows.map((w) => {
                   const thumb = getThumb(w);
+                  const portrait = w.orientation === "portrait";
                   return (
                     <Link key={w.id} href={`/works/${w.id}`}
-                      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)]">
+                      className={`group relative block overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)] ${portrait ? "aspect-[9/16]" : "aspect-[4/3]"}`}>
                       {thumb ? (
                         <img src={thumb} alt={w.title} className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-100" />
                       ) : (

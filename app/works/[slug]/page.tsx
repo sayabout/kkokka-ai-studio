@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 
 type Work = {
   id: number; title: string; category: string; client_type: string | null; year: string | null;
-  video_url: string | null; thumbnail_url: string | null; description: string;
+  video_url: string | null; thumbnail_url: string | null; description: string; orientation?: string;
 };
 
 // 유튜브/비메오 임베드 URL 변환
@@ -41,7 +41,7 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
   }, [params.slug]);
 
   const embed = work ? getEmbed(work.video_url) : null;
-  const isShorts = !!(work?.video_url && /shorts\//.test(work.video_url));
+  const isShorts = work?.orientation === "portrait" || !!(work?.video_url && /shorts\//.test(work.video_url));
 
   return (
     <>

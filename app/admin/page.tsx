@@ -535,7 +535,7 @@ const WORK_CATS = ["Public Campaign", "Brand Film", "Short-form Ads", "Product V
 type WorkRow = {
   id: number; title: string; category: string; client_type: string | null; year: string | null;
   video_url: string | null; thumbnail_url: string | null; description: string;
-  is_public: boolean; is_featured: boolean; sort_order: number;
+  is_public: boolean; is_featured: boolean; sort_order: number; orientation?: string;
 };
 
 function WorksManage() {
@@ -559,7 +559,7 @@ function WorksManage() {
   };
   useEffect(() => { load(); }, []);
 
-  const blank = (): Partial<WorkRow> => ({ title: "", category: "Brand Film", year: String(new Date().getFullYear()), video_url: "", thumbnail_url: "", description: "", is_public: true, is_featured: false, sort_order: 0 });
+  const blank = (): Partial<WorkRow> => ({ title: "", category: "Brand Film", year: String(new Date().getFullYear()), video_url: "", thumbnail_url: "", description: "", is_public: true, is_featured: false, sort_order: 0, orientation: "landscape" });
 
   const save = async () => {
     if (!edit?.title?.trim()) { alert("제목을 입력하세요."); return; }
@@ -606,6 +606,12 @@ function WorksManage() {
             </div>
             <FieldA label="클라이언트 유형 (선택)"><input className="ii" value={f.client_type || ""} onChange={(e) => set("client_type", e.target.value)} placeholder="예: 공공기관 / 브랜드 (실명 대신 유형)" /></FieldA>
             <FieldA label="영상 링크 (유튜브/비메오)"><input className="ii" value={f.video_url || ""} onChange={(e) => set("video_url", e.target.value)} placeholder="https://youtu.be/... 또는 https://vimeo.com/..." /></FieldA>
+            <FieldA label="영상 방향">
+              <select className="ii" value={f.orientation || "landscape"} onChange={(e) => set("orientation", e.target.value)}>
+                <option value="landscape">가로형 (16:9) — 일반 영상, 브랜드 필름</option>
+                <option value="portrait">세로형 (9:16) — 숏폼, 릴스, 쇼츠</option>
+              </select>
+            </FieldA>
             <FieldA label="썸네일 이미지 URL (선택)"><input className="ii" value={f.thumbnail_url || ""} onChange={(e) => set("thumbnail_url", e.target.value)} placeholder="https://... (비우면 기본 그래픽)" /></FieldA>
             <FieldA label="설명"><textarea className="ii min-h-[90px]" value={f.description || ""} onChange={(e) => set("description", e.target.value)} placeholder="작업 개요, 목적 등" /></FieldA>
             <div className="grid grid-cols-3 gap-3">
