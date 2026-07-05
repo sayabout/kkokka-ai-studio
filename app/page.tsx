@@ -2,16 +2,9 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
-import WorkCard, { Work } from "@/components/WorkCard";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const revalidate = 0;
-
-const PREVIEW_WORKS: Work[] = [
-  { code: "PC-01", year: "2026", category: "Public Campaign", title: "공공 캠페인 프리뷰", tint: "t-blue", live: true },
-  { code: "BF-01", year: "2026", category: "Brand Film", title: "AI 브랜드 무드 필름", tint: "t-steel" },
-  { code: "SA-01", year: "2026", category: "Short-form Ads", title: "숏폼 광고 변주 시스템", tint: "t-warm" },
-];
 
 const PROCESS = [
   { n: "01", en: "Brief", kr: "브리프", dur: "~ 1 week", desc: "목적, 타깃, 활용 채널을 확인합니다." },
@@ -30,8 +23,29 @@ async function getSiteSettings() {
   }
 }
 
+async function getFeaturedWorks() {
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase.from("works").select("*")
+      .eq("is_public", true).eq("is_featured", true)
+      .order("sort_order", { ascending: true }).order("id", { ascending: false }).limit(3);
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
+// 유튜브 썸네일 추출
+function homeThumb(w: any): string | null {
+  if (w.thumbnail_url) return w.thumbnail_url;
+  const u = w.video_url || "";
+  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
+  return yt ? `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg` : null;
+}
+
 export default async function Home() {
   const settings = await getSiteSettings();
+  const featuredWorks = await getFeaturedWorks();
   const videoSrc = settings?.desktop_video_url || "/videos/hero.mp4";
   const posterSrc = settings?.poster_url || undefined;
   const overlayOpacity = settings?.overlay_opacity ?? 0.55;
@@ -111,7 +125,32 @@ export default async function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-            {PREVIEW_WORKS.map((w) => <WorkCard key={w.code} work={w} />)}
+            {featuredWorks.length > 0 ? (
+              featuredWorks.map((w: any) => {
+                const thumb = homeThumb(w);
+                return (
+                  <Link key={w.id} href={`/works/${w.id}`}
+                    className="group relative block aspect-[3/4] overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)]">
+                    {thumb ? (
+                      <img src={thumb} alt={w.title} className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-100" />
+                    ) : (
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_35%,rgba(143,183,255,0.22),transparent_40%),linear-gradient(145deg,#0b0b0d,#111113)]" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/5 to-black/85" />
+                    <div className="absolute left-3.5 top-3.5 h-[22px] w-[22px] border-l-[1.5px] border-t-[1.5px] border-[rgba(143,183,255,0.5)]" />
+                    <div className="absolute inset-x-4 top-4 font-mono text-[11px] tracking-[0.08em] text-[rgba(244,241,234,0.7)]">{w.year || ""} {w.video_url ? "· ▶" : ""}</div>
+                    <div className="absolute inset-x-[18px] bottom-[18px]">
+                      <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ice">{w.category}</div>
+                      <h4 className="text-[18px] font-semibold leading-tight tracking-[-0.02em] text-offwhite">{w.title}</h4>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="col-span-full rounded-2xl border border-dashed border-white/[0.14] py-20 text-center text-[14px] text-gray-dark">
+                포트폴리오가 곧 공개됩니다.
+              </div>
+            )}
           </div>
           <div className="mt-8">
             <Link href="/works" className="inline-flex min-h-[52px] items-center justify-center rounded-full border border-white/[0.11] px-[26px] text-[14px] font-semibold text-offwhite transition hover:border-[rgba(143,183,255,0.34)] hover:text-ice">
