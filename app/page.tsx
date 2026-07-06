@@ -162,9 +162,6 @@ export default async function Home() {
                 AI로 생성한 결과물이 아니라, 디렉팅으로 완성한 작업들.
               </p>
             </div>
-            <Link href="/works" className="flex-none max-md:mt-6 inline-flex min-h-[52px] items-center justify-center rounded-full border border-white/[0.11] px-[26px] text-[14px] font-semibold text-offwhite transition hover:border-[rgba(143,183,255,0.34)] hover:text-ice">
-              전체 보기 →
-            </Link>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {featuredWorks.length > 0 ? (
