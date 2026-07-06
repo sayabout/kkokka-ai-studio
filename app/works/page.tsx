@@ -5,19 +5,30 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const CATS = ["전체", "Public Campaign", "Brand Film", "Short-form Ads", "Product Visual", "Pre-visual", "AI World-building"];
+const CATS = [
+  "전체",
+  "AI Brand Film",
+  "AI Public Campaign",
+  "AI Short-form Ads",
+  "AI Product Visual",
+  "AI Avatar & Explainer",
+  "AI Animation & Character",
+  "AI Pre-visualization",
+  "AI Content Package",
+];
+const PORTRAIT_CATS = ["AI Short-form Ads", "AI Pre-visualization"];
 const PER = 12;
 
 type Work = {
   id: number; title: string; category: string; client_type: string | null; year: string | null;
-  video_url: string | null; thumbnail_url: string | null; description: string; orientation?: string;
+  video_url: string | null; thumbnail_url: string | null; description: string;
+  tags?: string; orientation?: string;
 };
 
-// 유튜브/비메오 링크에서 썸네일 추출
 function getThumb(w: Work): string | null {
   if (w.thumbnail_url) return w.thumbnail_url;
   const u = w.video_url || "";
-  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\\w-]{11})/);
   if (yt) return `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`;
   return null;
 }
@@ -48,14 +59,14 @@ export default function WorksPage() {
   return (
     <>
       <Header />
-
       <section className="relative overflow-hidden border-b border-white/[0.11] pb-[54px] pt-[170px]">
         <div className="kk-stage opacity-60"><div className="kk-grid" /></div>
         <div className="relative z-[2] mx-auto max-w-[1240px] px-8">
           <div className="mb-[22px] font-mono text-[12px] uppercase tracking-[0.2em] text-ice">02 / Works</div>
-          <h1 className="font-display text-[clamp(46px,7vw,96px)] font-bold leading-[0.98] tracking-[-0.04em]">Selected Works</h1>
+          <h1 className="font-display text-[clamp(46px,7vw,96px)] font-bold leading-[0.98] tracking-[-0.04em]">AI-Directed Works</h1>
           <p className="mt-6 max-w-[640px] text-[16px] leading-[1.75] text-gray [word-break:keep-all]">
-            공공 캠페인, 브랜드 필름, 숏폼 광고, 제품 비주얼까지. 목적에 맞게 디렉팅한 AI 영상 콘텐츠입니다.
+            AI로 생성한 결과물이 아니라, 디렉팅으로 완성한 작업들.<br />
+            브랜드의 목적과 메시지에 맞춰 스토리, 이미지, 무드, 움직임, 편집 구조까지 설계합니다.
           </p>
         </div>
       </section>
@@ -83,10 +94,10 @@ export default function WorksPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {pageRows.map((w) => {
                   const thumb = getThumb(w);
-                  const portrait = w.orientation === "portrait";
+                  const portrait = PORTRAIT_CATS.includes(w.category);
                   return (
                     <Link key={w.id} href={`/works/${w.id}`}
-                      className={`group relative block overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)] ${portrait ? "aspect-[9/16]" : "aspect-[4/3]"}`}>
+                      className={`group relative block overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)] ${portrait ? "aspect-[9/14]" : "aspect-[4/3]"}`}>
                       {thumb ? (
                         <img src={thumb} alt={w.title} className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-100" />
                       ) : (
@@ -105,7 +116,6 @@ export default function WorksPage() {
                   );
                 })}
               </div>
-
               {totalPages > 1 && (
                 <div className="mt-10 flex justify-center gap-1.5">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -120,7 +130,6 @@ export default function WorksPage() {
           )}
         </div>
       </section>
-
       <Footer />
     </>
   );

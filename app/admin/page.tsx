@@ -266,6 +266,7 @@ function Members() {
 type SiteSettings = {
   desktop_video_url: string | null; mobile_video_url: string | null; poster_url: string | null;
   overlay_opacity: number; headline: string; subcopy: string;
+  whyai_video_main: string | null; whyai_video_sub1: string | null; whyai_video_sub2: string | null;
 };
 function HomeManage() {
   const [s, setS] = useState<SiteSettings | null>(null);
@@ -306,7 +307,10 @@ function HomeManage() {
     try {
       const res = await fetch("/api/admin/site-settings", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ headline: s.headline, subcopy: s.subcopy, overlay_opacity: s.overlay_opacity }),
+        body: JSON.stringify({
+          headline: s.headline, subcopy: s.subcopy, overlay_opacity: s.overlay_opacity,
+          whyai_video_main: s.whyai_video_main, whyai_video_sub1: s.whyai_video_sub1, whyai_video_sub2: s.whyai_video_sub2,
+        }),
       });
       const j = await res.json();
       if (!j.ok) throw new Error(j.error);
@@ -357,6 +361,36 @@ function HomeManage() {
           <br />
           <b>⚠ 업로드 팁</b> : 파일이 너무 크면(20MB↑) 실패할 수 있어요. 웹용 압축본을 사용하세요.
         </div>
+      </Card>
+      <Card>
+        <h2 className="mb-4 text-[15px] font-extrabold">🎥 Why AI 섹션 영상</h2>
+        <p className="mb-3 text-[12px] text-[#6b6b63]">홈페이지 "Why AI Video" 섹션 오른쪽에 나오는 영상들. 유튜브/비메오 링크를 넣으세요. 비워두면 해당 자리가 안 보입니다.</p>
+        {s ? (
+          <div className="space-y-3">
+            <div>
+              <div className="mb-1 text-[12px] font-semibold text-[#6b6b63]">큰 영상 (메인)</div>
+              <input className="w-full rounded-lg border border-[#e6e2d6] p-2.5 text-[13px]"
+                value={s.whyai_video_main || ""} placeholder="https://youtu.be/... 또는 https://vimeo.com/..."
+                onChange={(e) => setS({ ...s, whyai_video_main: e.target.value || null })} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="mb-1 text-[12px] font-semibold text-[#6b6b63]">작은 영상 1</div>
+                <input className="w-full rounded-lg border border-[#e6e2d6] p-2.5 text-[13px]"
+                  value={s.whyai_video_sub1 || ""} placeholder="https://youtu.be/..."
+                  onChange={(e) => setS({ ...s, whyai_video_sub1: e.target.value || null })} />
+              </div>
+              <div>
+                <div className="mb-1 text-[12px] font-semibold text-[#6b6b63]">작은 영상 2</div>
+                <input className="w-full rounded-lg border border-[#e6e2d6] p-2.5 text-[13px]"
+                  value={s.whyai_video_sub2 || ""} placeholder="https://youtu.be/..."
+                  onChange={(e) => setS({ ...s, whyai_video_sub2: e.target.value || null })} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-[13px] text-[#6b6b63]">불러오는 중...</div>
+        )}
       </Card>
       <Card>
         <h2 className="mb-4 text-[15px] font-extrabold">✍ 메인 카피</h2>
@@ -531,11 +565,21 @@ function Memo() {
 }
 
 /* ===== 포트폴리오(Works) 관리 ===== */
-const WORK_CATS = ["Public Campaign", "Brand Film", "Short-form Ads", "Product Visual", "Pre-visual", "AI World-building"];
+const WORK_CATS = [
+  "AI Brand Film",
+  "AI Public Campaign",
+  "AI Short-form Ads",
+  "AI Product Visual",
+  "AI Avatar & Explainer",
+  "AI Animation & Character",
+  "AI Pre-visualization",
+  "AI Content Package",
+];
+const PORTRAIT_CATS = ["AI Short-form Ads", "AI Pre-visualization"];
 type WorkRow = {
   id: number; title: string; category: string; client_type: string | null; year: string | null;
   video_url: string | null; thumbnail_url: string | null; description: string;
-  is_public: boolean; is_featured: boolean; sort_order: number; orientation?: string;
+  is_public: boolean; is_featured: boolean; sort_order: number; orientation?: string; tags?: string;
 };
 
 function WorksManage() {
@@ -559,7 +603,7 @@ function WorksManage() {
   };
   useEffect(() => { load(); }, []);
 
-  const blank = (): Partial<WorkRow> => ({ title: "", category: "Brand Film", year: String(new Date().getFullYear()), video_url: "", thumbnail_url: "", description: "", is_public: true, is_featured: false, sort_order: 0, orientation: "landscape" });
+  const blank = (): Partial<WorkRow> => ({ title: "", category: "AI Brand Film", year: String(new Date().getFullYear()), video_url: "", thumbnail_url: "", description: "", is_public: true, is_featured: false, sort_order: 0, tags: "" });
 
   const save = async () => {
     if (!edit?.title?.trim()) { alert("제목을 입력하세요."); return; }
@@ -599,21 +643,16 @@ function WorksManage() {
             <div className="grid grid-cols-2 gap-3">
               <FieldA label="카테고리">
                 <select className="ii" value={f.category} onChange={(e) => set("category", e.target.value)}>
-                  {WORK_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {WORK_CATS.map((c) => <option key={c} value={c}>{c}{PORTRAIT_CATS.includes(c) ? " (세로)" : " (가로)"}</option>)}
                 </select>
               </FieldA>
               <FieldA label="연도"><input className="ii" value={f.year || ""} onChange={(e) => set("year", e.target.value)} placeholder="2026" /></FieldA>
             </div>
             <FieldA label="클라이언트 유형 (선택)"><input className="ii" value={f.client_type || ""} onChange={(e) => set("client_type", e.target.value)} placeholder="예: 공공기관 / 브랜드 (실명 대신 유형)" /></FieldA>
             <FieldA label="영상 링크 (유튜브/비메오)"><input className="ii" value={f.video_url || ""} onChange={(e) => set("video_url", e.target.value)} placeholder="https://youtu.be/... 또는 https://vimeo.com/..." /></FieldA>
-            <FieldA label="영상 방향">
-              <select className="ii" value={f.orientation || "landscape"} onChange={(e) => set("orientation", e.target.value)}>
-                <option value="landscape">가로형 (16:9) — 일반 영상, 브랜드 필름</option>
-                <option value="portrait">세로형 (9:16) — 숏폼, 릴스, 쇼츠</option>
-              </select>
-            </FieldA>
             <FieldA label="썸네일 이미지 URL (선택)"><input className="ii" value={f.thumbnail_url || ""} onChange={(e) => set("thumbnail_url", e.target.value)} placeholder="https://... (비우면 기본 그래픽)" /></FieldA>
             <FieldA label="설명"><textarea className="ii min-h-[90px]" value={f.description || ""} onChange={(e) => set("description", e.target.value)} placeholder="작업 개요, 목적 등" /></FieldA>
+            <FieldA label="기술 태그 (쉼표로 구분)"><input className="ii" value={f.tags || ""} onChange={(e) => set("tags", e.target.value)} placeholder="예: Image-to-Video, AI Voice, AI VFX, Cinematic" /></FieldA>
             <div className="grid grid-cols-3 gap-3">
               <FieldA label="공개 여부">
                 <select className="ii" value={f.is_public ? "1" : "0"} onChange={(e) => set("is_public", e.target.value === "1")}>
@@ -767,5 +806,3 @@ function Placeholder({ id }: { id: string }) {
     </>
   );
 }
-
-

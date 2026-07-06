@@ -28,7 +28,7 @@ async function getFeaturedWorks() {
     const supabase = createAdminClient();
     const { data } = await supabase.from("works").select("*")
       .eq("is_public", true).eq("is_featured", true)
-      .order("sort_order", { ascending: true }).order("id", { ascending: false }).limit(3);
+      .order("sort_order", { ascending: true }).order("id", { ascending: false }).limit(6);
     return data || [];
   } catch {
     return [];
@@ -41,6 +41,28 @@ function homeThumb(w: any): string | null {
   const u = w.video_url || "";
   const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
   return yt ? `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg` : null;
+}
+
+// Why AI 섹션 영상 썸네일 카드
+function getYtId(url: string): string | null {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+function WhyAiThumb({ url, large }: { url: string; large?: boolean }) {
+  const ytId = getYtId(url);
+  const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
+  return (
+    <Link href={url} target="_blank" rel="noreferrer"
+      className={`group relative block overflow-hidden rounded-xl border border-white/[0.11] bg-char2 transition hover:border-[rgba(143,183,255,0.34)] ${large ? "aspect-video" : "aspect-video"}`}>
+      {thumb && <img src={thumb} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75 transition group-hover:opacity-100" />}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/60" />
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition group-hover:opacity-100">
+        <div className="rounded-full bg-white/20 p-3 backdrop-blur-sm">
+          <div className="text-white text-[20px]">▶</div>
+        </div>
+      </div>
+    </Link>
+  );
 }
 
 export default async function Home() {
@@ -90,48 +112,68 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ===== WHY AI (꼬까씬 연결) ===== */}
+      {/* ===== WHY AI ===== */}
       <section className="px-8 py-[100px]">
         <div className="mx-auto max-w-[1240px]">
-          <SectionTag n="01" label="Why AI Video" />
-          <h2 className="max-w-[780px] text-[clamp(28px,3.6vw,46px)] font-bold leading-[1.2] tracking-[-0.03em] [word-break:keep-all]">
-            이제 AI 영상은 누구나 만들 수 있습니다.<br />
-            하지만 <span className="text-ice">좋은 영상</span>은 다릅니다.
-          </h2>
-          <p className="mt-6 max-w-[620px] text-[15px] leading-[1.8] text-[rgba(244,241,234,0.72)] [word-break:keep-all]">
-            같은 도구로도 결과는 완전히 달라집니다. 그 차이를 만드는 것이 <span className="text-offwhite">디렉팅</span>입니다.
-            무엇을 담을지 기획하고, 장면을 연출하고, 다듬고, 검수하고, 실제로 쓸 수 있게 완성하는 과정. 좋은 AI 영상에는 좋은 디렉팅 회사가 필요합니다.
-          </p>
-          <div className="my-8 h-px w-full bg-white/[0.1]" />
-          <p className="max-w-[620px] text-[17px] font-medium leading-[1.7] text-offwhite [word-break:keep-all]">
-            영상 제작사 <span className="text-ice">꼬까씬</span>이 쌓아온 연출력, 그 위에 AI를 얹었습니다.
-          </p>
-          <p className="mt-3 max-w-[620px] text-[15px] leading-[1.8] text-gray [word-break:keep-all]">
-            KKOKKA.AI STUDIO는 그렇게 이어진, 한발 앞서가는 AI 영상 디렉팅 스튜디오입니다.
-          </p>
+          <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
+            {/* 왼쪽 텍스트 */}
+            <div>
+              <SectionTag n="01" label="Why AI Video" />
+              <h2 className="max-w-[780px] text-[clamp(28px,3.6vw,46px)] font-bold leading-[1.2] tracking-[-0.03em] [word-break:keep-all]">
+                이제 AI 영상은 누구나 만들 수 있습니다.<br />
+                하지만 <span className="text-ice">좋은 영상</span>은 다릅니다.
+              </h2>
+              <p className="mt-6 max-w-[620px] text-[15px] leading-[1.8] text-[rgba(244,241,234,0.72)] [word-break:keep-all]">
+                같은 도구로도 결과는 완전히 달라집니다. 그 차이를 만드는 것이 <span className="text-offwhite">디렉팅</span>입니다.
+                무엇을 담을지 기획하고, 장면을 연출하고, 다듬고, 검수하고, 실제로 쓸 수 있게 완성하는 과정. 좋은 AI 영상에는 좋은 디렉팅 회사가 필요합니다.
+              </p>
+              <div className="my-8 h-px w-full bg-white/[0.1]" />
+              <p className="max-w-[620px] text-[17px] font-medium leading-[1.7] text-offwhite [word-break:keep-all]">
+                영상 제작사 <span className="text-ice">꼬까씬</span>이 쌓아온 연출력, 그 위에 AI를 얹었습니다.
+              </p>
+              <p className="mt-3 max-w-[620px] text-[15px] leading-[1.8] text-gray [word-break:keep-all]">
+                KKOKKA.AI STUDIO는 그렇게 이어진, 한발 앞서가는 AI 영상 디렉팅 스튜디오입니다.
+              </p>
+            </div>
+            {/* 오른쪽 영상 자리 */}
+            {settings?.whyai_video_main && (
+              <div className="flex flex-col gap-3">
+                <WhyAiThumb url={settings.whyai_video_main} large />
+                {(settings?.whyai_video_sub1 || settings?.whyai_video_sub2) && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {settings?.whyai_video_sub1 && <WhyAiThumb url={settings.whyai_video_sub1} />}
+                    {settings?.whyai_video_sub2 && <WhyAiThumb url={settings.whyai_video_sub2} />}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* ===== WORKS PREVIEW ===== */}
+      {/* ===== AI-DIRECTED WORKS ===== */}
       <section className="px-8 py-[100px]">
         <div className="mx-auto max-w-[1240px]">
           <div className="mb-12 flex items-end justify-between gap-10 max-md:block">
             <div>
-              <SectionTag n="02" label="Selected Works" />
-              <h2 className="font-display text-[clamp(32px,4.4vw,58px)] font-bold tracking-[-0.05em]">WORKS</h2>
+              <SectionTag n="02" label="Works" />
+              <h2 className="font-display text-[clamp(32px,4.4vw,58px)] font-bold tracking-[-0.05em]">AI-Directed Works</h2>
+              <p className="mt-3 max-w-[540px] text-[14px] leading-[1.75] text-gray [word-break:keep-all]">
+                AI로 생성한 결과물이 아니라, 디렉팅으로 완성한 작업들.
+              </p>
             </div>
-            <p className="max-w-[420px] text-[15px] leading-[1.75] text-gray max-md:mt-4 [word-break:keep-all]">
-              공공 캠페인, 브랜드 필름, 숏폼 광고, 제품 비주얼까지. 목적에 맞는 AI 영상 콘텐츠를 카테고리별로 설계합니다.
-            </p>
+            <Link href="/works" className="flex-none max-md:mt-6 inline-flex min-h-[52px] items-center justify-center rounded-full border border-white/[0.11] px-[26px] text-[14px] font-semibold text-offwhite transition hover:border-[rgba(143,183,255,0.34)] hover:text-ice">
+              전체 보기 →
+            </Link>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {featuredWorks.length > 0 ? (
               featuredWorks.map((w: any) => {
                 const thumb = homeThumb(w);
-                const portrait = w.orientation === "portrait";
+                const portrait = ["AI Short-form Ads", "AI Pre-visualization"].includes(w.category);
                 return (
                   <Link key={w.id} href={`/works/${w.id}`}
-                    className={`group relative block overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)] ${portrait ? "aspect-[9/16]" : "aspect-[3/4]"}`}>
+                    className={`group relative block overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)] ${portrait ? "aspect-[9/14]" : "aspect-[4/3]"}`}>
                     {thumb ? (
                       <img src={thumb} alt={w.title} className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-100" />
                     ) : (
@@ -152,11 +194,6 @@ export default async function Home() {
                 포트폴리오가 곧 공개됩니다.
               </div>
             )}
-          </div>
-          <div className="mt-8">
-            <Link href="/works" className="inline-flex min-h-[52px] items-center justify-center rounded-full border border-white/[0.11] px-[26px] text-[14px] font-semibold text-offwhite transition hover:border-[rgba(143,183,255,0.34)] hover:text-ice">
-              전체 포트폴리오 보기 →
-            </Link>
           </div>
         </div>
       </section>
