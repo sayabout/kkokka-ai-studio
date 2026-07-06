@@ -18,7 +18,7 @@ const SECTIONS = [
 type Work = {
   id: number; title: string; category: string;
   year: string | null; video_url: string | null; thumbnail_url: string | null;
-  client_type: string | null;
+  client_type: string | null; home_size?: string;
 };
 
 function getThumb(w: Work): string | null {
@@ -44,7 +44,7 @@ export default function HomeWorks() {
   return (
     <div className="space-y-[110px]">
       {SECTIONS.map((sec, i) => {
-        const items = rows.filter((w) => w.category === sec.key);
+        const items = rows.filter((w) => w.category === sec.key && (w.home_size === "big" || w.home_size === "small"));
         return (
           <CategorySection key={sec.key} sec={sec} num={String(i + 1).padStart(2, "0")} items={items} />
         );
@@ -87,19 +87,17 @@ function CategorySection({ sec, num, items }: { sec: typeof SECTIONS[0]; num: st
   );
 }
 
-/* 가로형: 큰 카드 1개 + 작은 카드들 (매거진) */
+/* 가로형: 큰 카드(big) 1개 + 작은 카드(small)들 (매거진) */
 function LandscapeMagazine({ items }: { items: Work[] }) {
-  // 플레이스홀더: 영상 없으면 최소 3자리 (큰1 + 작은2)
-  const slots = Math.max(items.length, 3);
-  const cards = Array.from({ length: slots }, (_, i) => items[i] || null);
-  const big = cards[0];
-  const smalls = cards.slice(1, 5); // 최대 4개 작은 카드
+  const bigWork = items.find((w) => w.home_size === "big") || null;
+  const smallWorks = items.filter((w) => w.home_size === "small");
+  // 작은 카드 자리는 최소 2개 (플레이스홀더로 채움)
+  const smallSlots = Math.max(smallWorks.length, 2);
+  const smalls = Array.from({ length: Math.min(smallSlots, 4) }, (_, i) => smallWorks[i] || null);
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {/* 큰 카드 */}
-      <WorkCardBig work={big} />
-      {/* 작은 카드들 */}
+      <WorkCardBig work={bigWork} />
       <div className="grid grid-cols-2 gap-4">
         {smalls.map((w, i) => <WorkCardSmall key={i} work={w} />)}
       </div>

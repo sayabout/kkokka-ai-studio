@@ -579,7 +579,7 @@ const PORTRAIT_CATS = ["AI Short-form Ads", "AI Pre-visualization"];
 type WorkRow = {
   id: number; title: string; category: string; client_type: string | null; year: string | null;
   video_url: string | null; thumbnail_url: string | null; description: string;
-  is_public: boolean; is_featured: boolean; sort_order: number; orientation?: string; tags?: string;
+  is_public: boolean; is_featured: boolean; sort_order: number; orientation?: string; tags?: string; home_size?: string;
 };
 
 function WorksManage() {
@@ -603,7 +603,7 @@ function WorksManage() {
   };
   useEffect(() => { load(); }, []);
 
-  const blank = (): Partial<WorkRow> => ({ title: "", category: "AI Brand Film", year: String(new Date().getFullYear()), video_url: "", thumbnail_url: "", description: "", is_public: true, is_featured: false, sort_order: 0, tags: "" });
+  const blank = (): Partial<WorkRow> => ({ title: "", category: "AI Brand Film", year: String(new Date().getFullYear()), video_url: "", thumbnail_url: "", description: "", is_public: true, is_featured: false, sort_order: 0, tags: "", home_size: "none" });
 
   const save = async () => {
     if (!edit?.title?.trim()) { alert("제목을 입력하세요."); return; }
@@ -659,9 +659,11 @@ function WorksManage() {
                   <option value="1">공개</option><option value="0">비공개</option>
                 </select>
               </FieldA>
-              <FieldA label="메인(홈) 노출">
-                <select className="ii" value={f.is_featured ? "1" : "0"} onChange={(e) => set("is_featured", e.target.value === "1")}>
-                  <option value="0">일반</option><option value="1">홈에 노출</option>
+              <FieldA label="홈 노출 (카드 크기)">
+                <select className="ii" value={f.home_size || "none"} onChange={(e) => set("home_size", e.target.value)}>
+                  <option value="none">노출 안 함</option>
+                  <option value="big">홈에 큰 카드</option>
+                  <option value="small">홈에 작은 카드</option>
                 </select>
               </FieldA>
               <FieldA label="정렬(작을수록 앞)"><input className="ii" type="number" value={f.sort_order ?? 0} onChange={(e) => set("sort_order", Number(e.target.value))} /></FieldA>
@@ -726,7 +728,8 @@ function WorksManage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-[14px] font-semibold">{w.title}</span>
-                      {w.is_featured && <span className="rounded-full bg-[#e3f0ff] px-2 py-0.5 text-[10px] font-bold text-[#1a3a66]">홈노출</span>}
+                      {w.home_size === "big" && <span className="rounded-full bg-[#d4e5ff] px-2 py-0.5 text-[10px] font-bold text-[#1a3a66]">홈·큰</span>}
+                      {w.home_size === "small" && <span className="rounded-full bg-[#e3f0ff] px-2 py-0.5 text-[10px] font-bold text-[#1a3a66]">홈·작은</span>}
                       {!w.is_public && <span className="rounded-full bg-[#f0f0f0] px-2 py-0.5 text-[10px] text-[#888]">비공개</span>}
                     </div>
                     <div className="mt-0.5 text-[12px] text-[#6b6b63]">{w.category} · {w.year || "-"} {w.video_url ? "· 🎬영상" : ""}</div>

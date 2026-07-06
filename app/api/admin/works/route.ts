@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       is_featured: b.is_featured ?? false, sort_order: b.sort_order ?? 0,
       orientation: b.orientation || "landscape",
       tags: b.tags || "",
+      home_size: b.home_size || "none",
     }).select("*").single();
     if (error) throw error;
     return NextResponse.json({ ok: true, work: data });
@@ -40,7 +41,7 @@ export async function PATCH(req: Request) {
     if (!b.id) return NextResponse.json({ ok: false, error: "id 없음" }, { status: 400 });
     const supabase = createAdminClient();
     const patch: Record<string, any> = { updated_at: new Date().toISOString() };
-    for (const k of ["title","category","client_type","year","video_url","thumbnail_url","description","is_public","is_featured","sort_order","orientation","tags"]) {
+    for (const k of ["title","category","client_type","year","video_url","thumbnail_url","description","is_public","is_featured","sort_order","orientation","tags","home_size"]) {
       if (b[k] !== undefined) patch[k] = b[k];
     }
     const { error } = await supabase.from("works").update(patch).eq("id", b.id);
