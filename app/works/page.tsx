@@ -39,6 +39,13 @@ export default function WorksPage() {
   const [cat, setCat] = useState("전체");
   const [page, setPage] = useState(1);
 
+  // URL ?cat= 파라미터로 초기 카테고리 설정
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get("cat");
+    if (c && CATS.includes(c)) setCat(c);
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {

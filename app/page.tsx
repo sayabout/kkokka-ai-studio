@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
+import HomeWorks from "@/components/HomeWorks";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const revalidate = 0;
@@ -21,26 +22,6 @@ async function getSiteSettings() {
   } catch {
     return null;
   }
-}
-
-async function getFeaturedWorks() {
-  try {
-    const supabase = createAdminClient();
-    const { data } = await supabase.from("works").select("*")
-      .eq("is_public", true).eq("is_featured", true)
-      .order("sort_order", { ascending: true }).order("id", { ascending: false }).limit(6);
-    return data || [];
-  } catch {
-    return [];
-  }
-}
-
-// 유튜브 썸네일 추출
-function homeThumb(w: any): string | null {
-  if (w.thumbnail_url) return w.thumbnail_url;
-  const u = w.video_url || "";
-  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
-  return yt ? `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg` : null;
 }
 
 // Why AI 섹션 영상 썸네일 카드
@@ -67,7 +48,6 @@ function WhyAiThumb({ url, large }: { url: string; large?: boolean }) {
 
 export default async function Home() {
   const settings = await getSiteSettings();
-  const featuredWorks = await getFeaturedWorks();
   const videoSrc = settings?.desktop_video_url || "/videos/hero.mp4";
   const posterSrc = settings?.poster_url || undefined;
   const overlayOpacity = settings?.overlay_opacity ?? 0.55;
@@ -163,35 +143,7 @@ export default async function Home() {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {featuredWorks.length > 0 ? (
-              featuredWorks.map((w: any) => {
-                const thumb = homeThumb(w);
-                const portrait = ["AI Short-form Ads", "AI Pre-visualization"].includes(w.category);
-                return (
-                  <Link key={w.id} href={`/works/${w.id}`}
-                    className={`group relative block overflow-hidden rounded-2xl border border-white/[0.11] bg-char2 transition hover:-translate-y-1 hover:border-[rgba(143,183,255,0.34)] ${portrait ? "aspect-[9/14]" : "aspect-[4/3]"}`}>
-                    {thumb ? (
-                      <img src={thumb} alt={w.title} className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-100" />
-                    ) : (
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_35%,rgba(143,183,255,0.22),transparent_40%),linear-gradient(145deg,#0b0b0d,#111113)]" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/5 to-black/85" />
-                    <div className="absolute left-3.5 top-3.5 h-[22px] w-[22px] border-l-[1.5px] border-t-[1.5px] border-[rgba(143,183,255,0.5)]" />
-                    <div className="absolute inset-x-4 top-4 font-mono text-[11px] tracking-[0.08em] text-[rgba(244,241,234,0.7)]">{w.year || ""} {w.video_url ? "· ▶" : ""}</div>
-                    <div className="absolute inset-x-[18px] bottom-[18px]">
-                      <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ice">{w.category}</div>
-                      <h4 className="text-[18px] font-semibold leading-tight tracking-[-0.02em] text-offwhite">{w.title}</h4>
-                    </div>
-                  </Link>
-                );
-              })
-            ) : (
-              <div className="col-span-full rounded-2xl border border-dashed border-white/[0.14] py-20 text-center text-[14px] text-gray-dark">
-                포트폴리오가 곧 공개됩니다.
-              </div>
-            )}
-          </div>
+          <HomeWorks />
         </div>
       </section>
 
