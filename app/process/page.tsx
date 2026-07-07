@@ -2,11 +2,24 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+// 큰 흐름 — 4단계 (홈과 동일)
 const STEPS = [
   { n: "01", en: "Brief", kr: "브리프", dur: "~ 1 week", desc: "클라이언트 미팅으로 브랜드의 톤과 메시지를 정의하고, 레퍼런스를 모으고, 결과물의 방향·일정·예산을 합의합니다.", deliv: ["Project Brief", "Reference Deck", "Timeline & Budget"] },
   { n: "02", en: "Concept", kr: "컨셉·콘티", dur: "~ 1–2 weeks", desc: "AI 무드보드와 스타일 프레임으로 비주얼 방향을 합의합니다. 스토리보드·컬러 팔레트·톤이 이 단계에서 확정됩니다.", deliv: ["Mood Board", "Style Frames", "Storyboard"] },
   { n: "03", en: "Directing", kr: "본 제작", dur: "~ 2–4 weeks", desc: "AI 생성·실사 합성·3D·후반 색보정·사운드까지 본 제작이 진행됩니다. V01 → V02 → V03 라운드로 완성도를 올립니다.", deliv: ["V01 Cut", "V02 Cut", "Final Master"] },
   { n: "04", en: "Delivery", kr: "납품", dur: "~ 1 week", desc: "최종 마스터, 다양한 비율 컷, 원본 소스, 라이선스 정리까지 한 번에 납품합니다.", deliv: ["Master Files", "Multi-Aspect Cuts", "Source Backup"] },
+];
+
+// 상세 프로세스 — 8단계 (AI × HI Direction System)
+const DETAIL = [
+  { n: "01", en: "Brief", kr: "브리프", desc: "목적·타깃·핵심 메시지를 정리하고 방향을 합의합니다.", deliv: ["Project Brief", "Reference Deck"] },
+  { n: "02", en: "AI Direction", kr: "AI 디렉션", desc: "장면·무드·프롬프트 방향을 설계합니다.", deliv: ["Scene Plan", "Prompt Design"] },
+  { n: "03", en: "Generation", kr: "제너레이션", desc: "이미지·영상·보이스를 생성합니다.", deliv: ["Key Visual", "Video", "Voice"] },
+  { n: "04", en: "Selection", kr: "셀렉션", desc: "좋은 컷을 선별하고 오류 컷을 제거합니다.", deliv: ["Best Takes", "Error Filtering"] },
+  { n: "05", en: "Editing", kr: "에디팅", desc: "컷 편집·자막·음악·사운드를 입힙니다.", deliv: ["Cut Edit", "Subtitles", "Sound"] },
+  { n: "06", en: "Correction", kr: "커렉션", desc: "색감·움직임·표현 오류를 보정합니다.", deliv: ["Color Grade", "Motion Fix"] },
+  { n: "07", en: "Review", kr: "리뷰", desc: "저작권·초상권·기관 사용 적합성을 검수합니다.", deliv: ["Rights Check", "Compliance"], hi: true },
+  { n: "08", en: "Delivery", kr: "딜리버리", desc: "최종본·숏폼·자막본·썸네일을 납품합니다.", deliv: ["Master", "Short-form", "Thumbnails"] },
 ];
 
 const PRINCIPLES = [
@@ -39,8 +52,12 @@ export default function ProcessPage() {
         </div>
       </section>
 
-      <section className="px-8 py-[100px]">
+      {/* ===== OVERVIEW — 큰 흐름 4단계 ===== */}
+      <section className="px-8 pb-[60px] pt-[100px]">
         <div className="mx-auto max-w-[1240px]">
+          <div className="mb-9 flex items-center gap-2.5 font-mono text-[12px] uppercase tracking-[0.2em] text-ice">
+            <span className="h-[7px] w-[7px] border border-ice" /> Overview · 큰 흐름
+          </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
             {STEPS.map((s) => (
               <div key={s.n} className="flex flex-col rounded-2xl border border-white/[0.11] bg-white/[0.045] p-7 transition hover:border-[rgba(143,183,255,0.34)] hover:bg-[rgba(143,183,255,0.05)]">
@@ -58,6 +75,38 @@ export default function ProcessPage() {
           <p className="mt-8 max-w-[900px] text-[14px] leading-[1.8] text-gray [word-break:keep-all]">
             ※ 후반 색보정·사운드 디자인·고난도 모션그래픽 등 마무리 작업은 AI 기반 워크플로우로 진행할지, 전문 후반 스튜디오 협업으로 갈지에 따라 비용이 달라집니다. 결과물의 결과 예산을 함께 보고 견적 단계에서 합의합니다.
           </p>
+        </div>
+      </section>
+
+      {/* ===== IN DETAIL — 상세 프로세스 8단계 ===== */}
+      <section className="px-8 pb-[100px] pt-[40px]">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="mb-3 flex items-center gap-2.5 font-mono text-[12px] uppercase tracking-[0.2em] text-ice">
+            <span className="h-[7px] w-[7px] border border-ice" /> In Detail · 상세 프로세스
+          </div>
+          <h2 className="mb-2.5 text-[clamp(24px,3vw,38px)] font-bold tracking-[-0.03em]">AI <span className="text-ice">×</span> HI Direction System</h2>
+          <p className="mb-9 max-w-[680px] text-[15px] leading-[1.75] text-gray [word-break:keep-all]">각 단계를 열어보면, 실제로는 여덟 단계로 진행됩니다. AI가 만들고, AI가 검토하고, 사람이 방향과 기준을 더해 완성합니다.</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+            {DETAIL.map((s) => (
+              <div
+                key={s.n}
+                className={
+                  "flex flex-col rounded-2xl border p-6 transition " +
+                  (s.hi
+                    ? "border-[rgba(143,183,255,0.5)] bg-[rgba(143,183,255,0.07)] hover:bg-[rgba(143,183,255,0.1)]"
+                    : "border-white/[0.11] bg-white/[0.045] hover:border-[rgba(143,183,255,0.34)] hover:bg-[rgba(143,183,255,0.05)]")
+                }
+              >
+                <div className="font-mono text-[12px] text-ice">{s.n}</div>
+                <h3 className="mt-4 font-display text-[19px] font-semibold">{s.en}</h3>
+                <div className="mb-3 text-[12.5px] text-gray">{s.kr}</div>
+                <p className="mb-4 text-[13px] leading-[1.65] text-gray [word-break:keep-all]">{s.desc}</p>
+                <div className="mt-auto border-t border-white/[0.11] pt-3">
+                  {s.deliv.map((d) => <span key={d} className="block py-0.5 font-mono text-[10.5px] text-gray before:text-ice before:content-['—_']">{d}</span>)}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
