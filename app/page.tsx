@@ -168,7 +168,14 @@ export default async function Home() {
                 <div className="mb-4 w-max rounded-full border border-[rgba(143,183,255,0.34)] px-2.5 py-1 font-mono text-[11px] text-ice">{p.dur}</div>
                 <p className="text-[13.5px] leading-[1.7] text-gray [word-break:keep-all]">{p.desc}</p>
               </div>
-            ))}
+           ))}
+          </div>
+
+          {/* 전체 프로세스 보기 링크 */}
+          <div className="mt-9">
+            <Link href="/process" className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-white/[0.11] px-[24px] text-[14px] font-semibold text-offwhite transition hover:-translate-y-0.5 hover:border-[rgba(143,183,255,0.34)] hover:text-ice">
+              전체 제작 프로세스 보기 →
+            </Link>
           </div>
         </div>
       </section>
