@@ -61,14 +61,14 @@ export default async function Home() {
         <HeroVideo videoSrc={videoSrc} posterSrc={posterSrc} overlayOpacity={overlayOpacity} />
         <div className="relative z-[4] mx-auto w-full max-w-[1240px] px-8">
           <div className="mb-6 flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.22em] text-ice before:h-px before:w-[34px] before:bg-ice before:opacity-70">
-            AI Directing Studio by SAYABOUT
+            AI × HI Direction System — by SAYABOUT
           </div>
-          <h1 className="max-w-[920px] text-[clamp(38px,6.5vw,80px)] font-bold leading-[1.06] tracking-[-0.04em] text-offwhite [word-break:keep-all]">
-            누구나 AI로 영상을 만듭니다.<br />
-            문제는 누가 <span className="text-ice [text-shadow:0_0_40px_rgba(143,183,255,0.3)]">디렉팅</span>하느냐입니다.
+          <h1 className="max-w-[920px] text-[clamp(40px,7vw,84px)] font-bold leading-[1.04] tracking-[-0.04em] text-offwhite [word-break:keep-all]">
+            AI to AI,<br />
+            with <span className="text-ice [text-shadow:0_0_40px_rgba(143,183,255,0.3)]">Human Intelligence</span>.
           </h1>
-          <p className="mt-8 max-w-[600px] text-[clamp(15px,1.5vw,20px)] leading-[1.75] text-[rgba(244,241,234,0.74)] [word-break:keep-all]">
-            도구는 평준화됐습니다. 남는 건 판단입니다. KKOKKA.AI STUDIO는 공공·기업이 실제로 쓸 수 있는 영상을 기획·연출·편집·검수·납품까지 디렉팅합니다.
+          <p className="mt-8 max-w-[640px] text-[clamp(15px,1.5vw,20px)] leading-[1.75] text-[rgba(244,241,234,0.74)] [word-break:keep-all]">
+            KKOKKA.AI STUDIO는 AI × HI Direction System으로 기획·생성·검토·보정·편집·납품까지 완성합니다. 중앙행정기관 및 공공기관과 협업해온 제작 역량 위에, AI를 더했습니다.
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link href="/contact" className="inline-flex min-h-[52px] items-center justify-center rounded-full bg-offwhite px-[26px] text-[14px] font-semibold text-black transition hover:-translate-y-0.5 hover:shadow-[0_14px_42px_rgba(244,241,234,0.14)]">

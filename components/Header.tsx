@@ -38,6 +38,14 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-3.5">
+          <a
+            href="https://kkokkascene.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden items-center gap-1.5 font-mono text-[12.5px] tracking-[0.06em] text-gray transition hover:text-ice sm:flex"
+          >
+            KKOKKASCENE <span className="text-[11px]">{"\u2197"}</span>
+          </a>
           <span className="hidden items-center gap-2 rounded-full border border-white/[0.11] px-3 py-2 font-mono text-[12.5px] tracking-[0.08em] text-gray sm:flex">
             SEARCH <kbd className="rounded border border-white/[0.11] px-[5px] text-[11px]">⌘K</kbd>
           </span>
