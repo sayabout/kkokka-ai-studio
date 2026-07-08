@@ -27,9 +27,9 @@ const config: Config = {
         ice: "#8FB7FF",
       },
       fontFamily: {
-        display: ["var(--font-space)", "Pretendard", "sans-serif"],
+        display: ["Pretendard", "sans-serif"],
         sans: ["Pretendard", "-apple-system", "sans-serif"],
-        mono: ["var(--font-mono)", "monospace"],
+        mono: ["Pretendard", "monospace"],
       },
     },
   },
