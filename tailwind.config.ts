@@ -29,7 +29,7 @@ const config: Config = {
       fontFamily: {
         display: ["Pretendard", "sans-serif"],
         sans: ["Pretendard", "-apple-system", "sans-serif"],
-        mono: ["Pretendard", "monospace"],
+        mono: ["Inter", "Pretendard", "sans-serif"],
       },
     },
   },
