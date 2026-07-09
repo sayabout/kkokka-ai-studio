@@ -191,7 +191,12 @@ export default function ConsultPage() {
               </button>
             </div>
             <p className="mt-2 px-1 text-center text-[11.5px] text-black/35">
-              본 상담은 맛보기 데모예요. 정확한 견적·상담은 제작 문의로 진행됩니다.
+              본 상담은 한정적 AI로 진행됩니다. 정확한 견적·상담은 제작 문의를 이용해 주세요.
+            </p>
+            <p className="mt-1 px-1 text-center text-[12px]">
+              <Link href="/contact" className="font-medium text-[#3b6fd4] underline">
+                일반 문의 바로가기 →
+              </Link>
             </p>
           </div>
         )}
