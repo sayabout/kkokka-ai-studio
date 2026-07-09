@@ -384,12 +384,21 @@ kkokka-ai-studio/
 
 ## 13. 확정 카피 (2026-07 확정)
 
-### Hero (첫 화면) — 절제된 확신
-- 서브 라벨: AI Directing Studio by SAYABOUT
-- 메인: **"누구나 AI로 영상을 만듭니다. 문제는 누가 디렉팅하느냐입니다."**
-- 서브: "도구는 평준화됐습니다. 남는 건 판단입니다. KKOKKA.AI STUDIO는 공공·기업이 실제로 쓸 수 있는 영상을 기획·연출·편집·검수·납품까지 디렉팅합니다."
-- CTA: 제작 문의하기 / 포트폴리오 보기 →
-- 핵심 단어는 **"디렉팅"** 유지 (브랜드 키워드)
+### Hero (첫 화면) — ★2026-07 개편: 있어 보이는 슬로건으로 교체 (반영 완료)★
+- 서브 라벨: **AI × HI Direction System — by SAYABOUT**
+- 메인: **"AI to AI, with Human Intelligence."** (Human Intelligence 아이스블루)
+- 서브: "KKOKKA.AI STUDIO는 AI × HI Direction System으로 기획·생성·검토·보정·편집·납품까지 완성합니다. 중앙행정기관 및 공공기관과 협업해온 제작 역량 위에, AI를 더했습니다."
+- 전략: 뜻(=AI가 만들고 AI가 검토하고 사람이 방향을 더함)은 **홈에서 드러내지 않음**.
+  궁금증을 유발해 상담을 여는 장치. 시스템명은 KKOKKA 독자 자산 (GPT/외부툴 아님).
+- 하단 공공 실적은 **기관명 안 깜** (NDA/공공 관례) → "중앙행정기관·공공기관"으로만.
+
+  (구버전, 폐기) 메인: "누구나 AI로 영상을 만듭니다. 문제는 누가 디렉팅하느냐입니다."
+
+### ★AI × HI Direction System (독자 방법론 — 사이트엔 8단계만, 툴이름 비공개)★
+- 슬로건 뜻(비공개): AI가 만들고 → 다른 AI가 검토(AI to AI) → 사람이 방향·기준(Human Intelligence)
+- 고객용 8단계(공개): Brief → AI Direction → Generation → Selection → Editing → Correction → **Review(★저작권·초상권·기관적합성)** → Delivery
+- 실제 툴 파이프라인(★영업비밀, 사이트 노출 X): GPT(기획) → Claude(검증) → Gemini/Perplexity(레퍼런스) → Nano Banana/Midjourney(키비주얼) → Runway/Kling/Veo/Sora(영상생성) → Claude/Gemini(QC) → Premiere/CapCut(편집) → Human(Final Direction)
+- 공개 범위 = "반만 공개": 뭘 하는지(8단계)는 보여주되, 어떻게(툴조합)는 안 줌
 
 ### Why AI 섹션 — 개인도 가능하나 좋은 영상엔 디렉팅 필요 (도전적 톤 X)
 - 헤드: **"이제 AI 영상은 누구나 만들 수 있습니다. 하지만 좋은 영상은 다릅니다."**
@@ -420,3 +429,202 @@ kkokka-ai-studio/
   (색상 강조 span 있어서 동적화 보류, 서브카피도 하드코딩 유지 — 추후 필요시 연결)
 - ⚠ Supabase에 **site-media 라는 Storage 버킷을 Public으로 생성**해야 업로드 작동함 (수동)
 - kkokka.ai 도메인 구매 완료 → Vercel Domains 연결 진행 중
+
+### 포트폴리오(Works) 전체 완성
+- SQL: 8888_works.sql (works 테이블)
+- API: /api/works(공개, ?featured=1), /api/admin/works(CRUD)
+- 관리자: 등록/수정/삭제 + 검색 + 카테고리필터(개수) + 페이징(20개)
+- ★Works/홈 DB 연결 완료:
+  - app/works/page.tsx (use client) — DB조회+카테고리필터+페이징(12개), 유튜브썸네일 자동
+  - app/works/[slug]/page.tsx — 상세, 유튜브/비메오 임베드 재생
+  - app/page.tsx — featured(홈노출) 3개를 DB에서, 없으면 "곧 공개"
+  - 가짜 샘플(PREVIEW_WORKS, CHANNELS) 제거, WorkCard import 제거
+- 영상=유튜브/비메오 링크 방식 (용량 무제한). 썸네일 자동추출(youtube hqdefault)
+
+### 포트폴리오 영상 방향(가로/세로) 선택 기능
+- SQL: 9999_works_orientation.sql (works.orientation 컬럼, 기본 landscape)
+- 관리자 등록폼: "영상 방향" 드롭다운 (가로 16:9 / 세로 9:16)
+- Works목록·홈: portrait면 aspect-[9/16] 세로카드, 아니면 가로카드
+- 상세: orientation=portrait 또는 shorts링크면 세로(9:16) 플레이어
+- 세로영상(숏폼·릴스·쇼츠)도 이제 카드·재생이 딱 맞음
+
+### 카테고리별 방향 고정 (v2 - orientation 필드 대신 카테고리로 결정)
+- 세로형 카테고리: Short-form Ads, Pre-visual → 카드/재생 9:16
+- 가로형 카테고리: Public Campaign, Brand Film, Product Visual, AI World-building → 16:9
+- 관리자 영상방향 선택 제거 (카테고리가 자동 결정). 카테고리 드롭다운에 (세로)/(가로) 표시
+- Works/홈/상세 모두 PORTRAIT_CATS=["Short-form Ads","Pre-visual"] 기준으로 판정
+- ※ orientation DB컬럼은 남아있으나 미사용 (나중 제거 가능)
+- ※ 목록에서 세로/가로 섞이면 높이 들쭉날쭉 → 카테고리 필터로 보면 통일됨
+
+### 홈 매거진 레이아웃 (blink ai 스타일) - components/HomeWorks.tsx
+- 홈 Works = 8개 카테고리 섹션 세로 나열 (전체보기 버튼 없음, 홈이 곧 전체)
+- 각 섹션: 01/AI BRAND FILM 모노라벨 + 큰 영문타이틀 + 영문설명 + 작은 한글
+- 가로 카테고리: 큰카드1 + 작은카드들(매거진), 세로(숏폼·프리비주얼): 한줄 4개
+- 영상 없으면 "Coming Soon" 플레이스홀더 카드로 자리 유지 (레이아웃 안흔들림)
+- 제목/View all 클릭 → /works?cat=카테고리 (해당 카테고리 필터로 이동)
+- /works: URL ?cat= 파라미터로 초기 카테고리 세팅
+- 8개 섹션 문구는 HomeWorks.tsx SECTIONS 배열에 하드코딩 (나중에 관리자화 가능)
+- ※관리자 홈노출 큰/작은 선택기능은 아직 (지금은 카테고리별 등록순 자동배치)
+
+### 어드민 홈노출 큰/작은 카드 선택 (home_size)
+- SQL: GGGG_works_home_size.sql (works.home_size: none/big/small)
+- 어드민 폼: "홈 노출(카드 크기)" = 노출안함/홈에 큰 카드/홈에 작은 카드
+- 목록 배지: 홈·큰 / 홈·작은
+- HomeWorks: 각 카테고리에서 home_size=big → 큰자리, small → 작은자리 배치
+- 홈엔 home_size가 big/small인 것만 노출 (none은 홈에 안 나옴, /works엔 나옴)
+- 빈 자리는 Coming Soon 플레이스홀더
+- ※ is_featured 컬럼은 이제 미사용 (home_size로 대체)
+
+### [홈 채우기 계획] 홈 꽉 채우려면 카테고리당
+- 가로 6개 카테고리: 각 큰1 + 작은2 = 3개 → 18개
+- 세로 2개 카테고리: 각 4개 → 8개
+- 총 26개 (최소). 큰1+작은 더 넣으면 더 필요.
+
+---
+
+## 15. 2026-07-08 작업 로그 (이 채팅방)
+
+### 완료 (코드 반영 + git push)
+- **/process 페이지 개편** (app/process/page.tsx 통째 교체)
+  - 상단: 기존 4단계 유지 (Overview·큰 흐름 소제목 추가) — Brief/Concept/Directing/Delivery
+  - 하단: **상세 8단계 신규** (In Detail·상세 프로세스 소제목 + "AI × HI Direction System" 제목)
+    - 01 Brief / 02 AI Direction / 03 Generation / 04 Selection / 05 Editing / 06 Correction / **07 Review(★아이스블루 강조: 저작권·초상권·기관적합성)** / 08 Delivery
+    - 8개 카드는 산출물(deliverables) 포함, 모바일1줄·태블릿2줄·PC 4×2 자동정렬
+- **홈 프로세스 섹션에 링크 추가** (app/page.tsx) — "전체 제작 프로세스 보기 →" → /process
+- **Hero 카피 교체** (app/page.tsx) — "AI to AI, with Human Intelligence." + 공공실적(기관명 안깜). 상세는 §13 참고
+- **상단바 KKOKKASCENE 링크** (components/Header.tsx) — 오른쪽, 새 창, https://kkokkascene.com/ (모기업 꼬까씬 사이트)
+
+### 아직 안 함 (다음 후보)
+- "큰 흐름(Overview)" 소제목 용어 다듬기 (사용자가 살짝 걸려함, 급하지 않음)
+- 카테고리별 영상 등록 — 하루 1~2개, 1번(AI Brand Film)부터. 영상AI 프롬프트는 Claude가 카테고리별로 제공
+- 관리자 로그인/비번보호 (보안공백 — /admin 누구나 접근, 알고있음)
+- 꼬까AI 문의봇 (§16 설계 확정, 구현은 나중)
+
+---
+
+## 16. ★꼬까AI 문의봇 설계도 (2026-07-08 설계 확정 / 구현 미정)★
+
+> 사용자가 다른 곳에서 AI API 연결·테스트 중. 로직은 알고 있음. 여기선 "설계"만 확정.
+> 목적 재정의: 문의 접수봇 ❌ → **"디렉팅 맛보기 데모 + 사전상담 수집기"** ⭕
+
+### 존재 이유 (2가지)
+1. "AI 스튜디오인데 사이트에 AI가 없다"는 약점 해소 — 방문자가 AI를 직접 체험 (있어 보이게, 선두 전략)
+2. **카테고리를 대화로 정리**해줌 (방문자도 사용자도 8개 분류 어려움) + **대화 원본을 관리자에 저장** → 사용자가 미리 파악한 상태로 상담 → 상담이 자유로워짐
+
+### 대화 흐름
+1. 어떤 용도세요? (회사·브랜드 / 공공기관 / 개인·소상공인 / 제품)
+2. "아~ 회사용이시군요! 어떤 모습을 원하는지 자유롭게 써보세요" → 방문자가 마음껏 말함 (AI가 먼저 정하지 않음. 디렉터처럼 먼저 끌어냄)
+3. AI가 받아서 무드 공감 + 카테고리 정리 ("말씀 들어보니 AI Brand Film 쪽이 잘 맞겠어요") — 판정표는 속으로만 참고, 겉은 공감+정리
+4. "정확한 디렉팅은 상담에서요 👇" [ 제작 문의하기 → ] (기존 문의 폼으로)
+5. (자동) 대화 원본 전체 + 잡힌 카테고리 → 관리자에 저장 ★알맹이★
+
+### 연락처 = 문의 폼에서 받음 (A방식). AI는 연락처 안 받음.
+- 대화 원본은 어차피 저장되므로 AI 카테고리 판정이 틀려도 사용자가 원본 보고 바로잡으면 됨 (AI 100% 정확도 불필요)
+
+### 대화 제한 3겹 (해킹·비용 방어) — 비용 자체는 괜찮으나 악용 차단이 목적
+- ① 5턴: 부드럽게 "폼으로 가세요" 유도
+- ② **10턴: 딱 멈춤 (입력창 잠김)** — 한 사람이 태울 비용 천장
+- ③ 서버: IP 속도제한 + **월 예산 상한(넘으면 자동정지)** — 해커/봇 원천차단
+
+### AI 안전선
+- 견적 금액 ❌ ("예산은 상담 후 안내") / "무조건 됩니다" 확답 ❌ / 영상 외 잡담 ❌
+- 못 알아들으면 "담당자가 직접 답변드릴게요"
+- 역할 고정: "너는 꼬까AI, 영상 문의만"
+
+### 판정 규칙표 (AI가 속으로 참고 — 8 카테고리)
+| 용도/내용 | 길이 | 화면 | 카테고리 | 무드 예시 |
+|---|---|---|---|---|
+| 회사·브랜드 | 2~4분 | 가로 | AI Brand Film | 비행기가 부드럽게 착륙하듯 안정적인 |
+| 공공·캠페인 | 1~3분 | 가로 | AI Public Campaign | 잔잔한 물결이 퍼지듯 신뢰감 있는 |
+| SNS·숏폼 | 15~60초 | 세로 | AI Short-form Ads | 첫 3초에 시선을 잡는 속도감 |
+| 제품·쇼핑몰 | 30초~2분 | 가로 | AI Product Visual | 제품에 조명이 스며들 듯 감각적인 |
+| 인물·설명 | 1~3분 | 가로 | AI Avatar & Explainer | 차분하게 설명하듯 또렷한 |
+| 캐릭터·애니 | 30초~2분 | 가로 | AI Animation & Character | 동화책이 살아 움직이는 듯한 |
+| 기획·콘티 | 30초~1분 | 세로 | AI Pre-visualization | 완성 전 스케치가 움직이는 |
+| 묶음 | 협의 | 혼합 | AI Content Package | 하나의 세계관으로 연결되는 |
+- 세로 = Short-form Ads + Pre-visualization 2개만 (§섹션 카테고리 규칙과 일치)
+
+### 배치 위치 (확정: 옵션 2)
+- **Hero(슬로건) 바로 다음, 독립 섹션**에 흰색 AI 문의창 카드
+- 검정 배경에 흰 카드 하나 둥실 → "아 AI네!" 효과 (대비로 주목)
+- Hero는 깔끔하게 유지 + AI창도 첫화면 근처. (Hero 안에 넣으면 산만 / 우측하단 플로팅챗봇은 흔한 SaaS느낌이라 ❌)
+- 카드 문구 예: "꼬까AI입니다 🎬 / 어떤 영상을 만들고 싶으세요?" + 입력창 → 클릭 시 대화 페이지로 이동
+
+### DB 메모 (구현 시)
+- 대화 원본 저장 테이블 신규 (예: ai_consultations) 또는 inquiries에 source="ai_chat" + conversation 필드
+- 관리자에서 "AI 상담 원본" 열람 (기존 문의와 같이 보거나 별도 탭)
+
+---
+
+## 17. 2026-07-10 작업 로그 (금요일)
+
+### 완료 (코드 반영 + git push)
+
+**① 영상 등록 (포트폴리오 첫 작품들)**
+- SAYABOUT 브랜드 필름 등록 — 1번 AI Brand Film, 홈 큰 카드, 첫 작품
+- 자연 브랜드 필름 등록 — AI Brand Film, 홈 작은 카드
+- (제작안까지 나온 것) 제품·럭셔리 Brand Film — Skywork 대기
+- 영상 워크플로우 = 유튜브 링크 등록 → 썸네일 자동추출
+
+**② 영상 제작 표준안 v1 확립**
+- 문서 구조: §0 카테고리(8개)+이번 카테고리 명기 → §1 개요 → 유닛1·2 프롬프트 → 후반(자막·BGM) → 재사용법
+- AI×AI 워크플로우: Claude(제작안) → ChatGPT(검증) → Skywork(영상생성) → Human(디렉팅)
+- 표준: 30초 = 15초×2유닛(품질), 영상엔 글자0(자막은 후반), 컬러=Ice Blue 통일, 얼굴클로즈업·로고 금지
+- 제작안은 채팅 텍스트로 전달(파일X). ChatGPT엔 제작안 본체만, Skywork엔 프롬프트 박스만
+
+**③ 폰트 개편 (대표님 피드백)**
+- 전체 Pretendard 통일: tailwind.config.ts에서 display/mono의 Space Grotesk·IBM Plex Mono 제거 → Pretendard (Space Grotesk의 W 못생김 해결)
+- 상단바·라벨만 Inter: globals.css에 Inter import 추가 + tailwind mono를 ["Inter","Pretendard"]로 (대표님 "정직한 톤" 취향)
+- 결과: 큰제목·본문=Pretendard, 상단바메뉴·숫자·라벨=Inter. 대표님 "맘에 딱"
+
+**④ 버그 수정**
+- /works 목록 유튜브 썸네일 안뜸 → app/works/page.tsx 정규식 오타 [\\w-] → [\w-] (홈은 정상이었음). 백슬래시 1개 차이
+
+**⑤ ★꼬까AI 상담 기능 — 구현 완료 & 배포 (kkokka.ai/consult 라이브)★**
+- §16 설계도대로 실제 구현 완료. 실제 사이트에서 작동 확인.
+
+---
+
+## 18. ★꼬까AI 상담 — 구현 상세 (실제 작동 중)★
+
+### 파일 구성
+- `app/api/consult/route.ts` — AI 호출 서버 (★OpenAI 키는 여기서만, 화면 노출X). gpt-4o-mini 사용. SYSTEM_PROMPT에 꼬까AI 역할·8카테고리·안전선 지시. 2턴 이상이면 대화원본 자동저장. MAX_TURNS=10
+- `app/consult/page.tsx` — 대화 화면 (검정 배경 흰 카드). ★입장 게이트 포함★
+- `app/page.tsx` — 홈 Hero 밑 흰색 상담 카드 (§KKOKKA AI 상담 카드 섹션)
+- Supabase 테이블 `ai_consultations` (SQL 실행완료): visitor_name, category, messages(jsonb), turn_count, created_at. RLS on(서버만 접근)
+
+### 입장 게이트 (구경꾼·경쟁사 필터 — 대표님 방향)
+- ★목적 재확인: 연락용 아님. "무분별 클릭·경쟁사 떠보기 차단" 필터★
+- 상담 전 입장화면: 회사명(2자↑) + 연락처(8자↑) + 개인정보 동의체크 → 셋 다 있어야 [상담 시작] 활성화
+- "부담되면 → 일반 문의하기(/contact)" 링크 제공 (강제 아닌 선택)
+- 동의 문구: 수집=회사명·연락처 / 목적=AI 영상 상담 / 상담 종료 후 파기
+- 신원(회사/연락처)은 대화 원본 visitor_name에 같이 저장 → 관리자가 나중에 파악
+
+### 홈 카드 문구 (확정)
+- 큰: "어떤 AI 영상을 만들고 싶으세요?"
+- 밑: "AI 도우미 KKOKKA가 상담해 드립니다." (KKOKKA가 주체, AI는 도구 뉘앙스)
+- 가짜 입력창(예: 회사 브랜드 홍보영상...) + "상담 시작 →" → 클릭 시 /consult 새 페이지 이동
+- 방식 A(가짜 입력창=미끼). 실제 진입은 /consult 입장게이트 거침
+
+### 환경변수 (★중요★)
+- `OPENAI_API_KEY` — 로컬 .env.local + Vercel 환경변수 둘 다 등록완료 (Vercel은 Redeploy해야 적용)
+- `SUPABASE_SERVICE_ROLE_KEY` — 대화저장에 필요 (createAdminClient). Vercel에도 있어야 함
+- ※ .env.local은 .gitignore로 자동 제외됨 (키 노출 안전 확인)
+
+### 대화 로직 (설계 §16 그대로 작동)
+- 용도 물어봄 → "아~ ○○이시군요! 자유롭게 써보세요"로 끌어냄 → 무드공감+카테고리 추측/확인 → 폼 유도
+- 안전선: 견적금액X, 확답X, 잡담거절, 카테고리는 확정아닌 확인형
+
+### 아직 안 한 것 (다음 후보)
+- 관리자 "AI 상담 목록" 화면 (대화원본은 DB에 쌓이는데, /admin에서 열람하는 UI 미구현)
+- 개인정보처리방침에 "AI 상담 수집항목" 한 줄 추가하면 더 깔끔
+- 비용방어 ③겹 중 서버측(IP 속도제한)은 미구현 — 현재는 10턴 하드상한만. 필요시 추가
+
+---
+
+## 19. 계정/환경 메모 (헷갈림 방지)
+- GitHub: 회사=sayabout(엣지 사용), 개인=springleaf-ai(크롬 사용)
+- ★집 컴퓨터 git이 개인계정 붙잡는 문제 발생 → 윈도우 자격증명관리자에서 github 삭제 → sayabout 재인증으로 해결★
+- sayabout 2단계인증 = 대표님 폰으로 문자 (push 시 대표님 인증 필요할 수 있음)
+- Vercel도 2FA 권장 뜨면 "Skip securing my account" 눌러 넘어감 (나중에 설정)
+- 작업 위치: 회사 C:\Users\i5\... / 집 C:\Users\Administrator\...
