@@ -92,25 +92,30 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ===== KKOKKA AI 상담 카드 ===== */}
+      {/* ===== KKOKKA AI 상담 카드 (ChatGPT 스타일) ===== */}
       <section className="px-8 pb-[40px] pt-[70px]">
-        <div className="mx-auto max-w-[820px]">
-          <Link href="/consult" className="group block">
-            <div className="rounded-3xl bg-white p-8 shadow-[0_30px_80px_rgba(0,0,0,0.5)] transition group-hover:-translate-y-1 md:p-10">
-              <div className="mb-3 flex items-center gap-2">
-                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#8FB7FF]" />
-                <span className="font-mono text-[12px] font-medium tracking-[0.06em] text-black/50">KKOKKA.AI CONSULT</span>
-              </div>
-              <h3 className="text-[clamp(26px,3.6vw,36px)] font-bold tracking-[-0.03em] text-black">
-                어떤 AI 영상을 만들고 싶으세요?
-              </h3>
-              <p className="mt-2.5 text-[16.5px] text-black/55">AI 도우미 KKOKKA가 상담해 드립니다.</p>
-              <div className="mt-6 flex items-center gap-2 rounded-2xl border border-black/12 bg-[#F7F8FA] px-4 py-3.5">
-                <span className="flex-1 text-[14.5px] text-black/40">예: 회사 브랜드 홍보영상을 만들고 싶어요</span>
-                <span className="rounded-xl bg-[#050505] px-4 py-2.5 text-[13.5px] font-semibold text-white transition group-hover:bg-[#8FB7FF] group-hover:text-black">
-                  상담 시작 →
-                </span>
-              </div>
+        <div className="mx-auto max-w-[720px] text-center">
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#8FB7FF]" />
+            <span className="font-mono text-[12px] font-medium tracking-[0.08em] text-white/50">KKOKKA.AI CONSULT</span>
+          </div>
+          <h3 className="text-[clamp(24px,3.4vw,34px)] font-bold tracking-[-0.03em] text-offwhite">
+            어떤 AI 영상을 만들고 싶으세요?
+          </h3>
+          <p className="mt-2.5 text-[15.5px] text-gray">
+            AI 도우미 <span className="text-ice">KKOKKA</span>가 상담해 드립니다.
+          </p>
+
+          <Link href="/consult" className="group mt-7 block">
+            <div className="flex items-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.05] px-3 py-2.5 transition group-hover:border-[rgba(143,183,255,0.5)] group-hover:bg-white/[0.08]">
+              <span className="flex-1 pl-3 text-left text-[15px] text-gray">
+                AI 상담을 원하시면 여기를 눌러주세요
+              </span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-black transition group-hover:bg-[#8FB7FF]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
+              </span>
             </div>
           </Link>
         </div>
