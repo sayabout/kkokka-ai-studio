@@ -29,7 +29,6 @@ export default function ConsultPage() {
     setInput("");
     setLoading(true);
 
-    // 첫 사용자 입력을 이름 후보로 저장 (선택)
     if (!visitorName && text.length < 30) setVisitorName(text);
 
     try {
@@ -58,7 +57,6 @@ export default function ConsultPage() {
   return (
     <div className="min-h-screen bg-[#050505] px-4 py-10 text-black">
       <div className="mx-auto flex min-h-[calc(100vh-80px)] max-w-[720px] flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
-        {/* 헤더 */}
         <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#8FB7FF]" />
@@ -68,7 +66,6 @@ export default function ConsultPage() {
           <Link href="/" className="text-[13px] text-black/40 hover:text-black">닫기 ✕</Link>
         </div>
 
-        {/* 대화 영역 */}
         <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-6 py-6">
           {messages.map((m, i) => (
             <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
@@ -91,7 +88,6 @@ export default function ConsultPage() {
           )}
         </div>
 
-        {/* 대화 종료 시 폼 안내 */}
         {done && (
           <div className="border-t border-black/10 bg-[#F8FAFF] px-6 py-4 text-center">
             <p className="mb-3 text-[14px] text-black/60">더 정확한 디렉팅은 문의에서 완성돼요.</p>
@@ -101,7 +97,6 @@ export default function ConsultPage() {
           </div>
         )}
 
-        {/* 입력창 */}
         {!done && (
           <div className="border-t border-black/10 p-4">
             <div className="flex items-end gap-2 rounded-2xl border border-black/12 bg-white p-2 focus-within:border-[#8FB7FF]">
