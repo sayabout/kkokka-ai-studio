@@ -42,6 +42,7 @@ export default function ConsultPage() {
       setShowGate(true);
       return;
     }
+    setInput("");
     sendToAI(text);
   }
 
