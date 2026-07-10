@@ -107,7 +107,7 @@ export default async function Home() {
           </p>
 
           <Link href="/consult" className="group mt-7 block">
-            <div className="flex items-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.05] px-3 py-2.5 transition group-hover:border-[rgba(143,183,255,0.5)] group-hover:bg-white/[0.08]">
+            <div className="flex items-center gap-2 rounded-full border-2 border-white/40 bg-white/[0.05] px-3 py-2.5 transition group-hover:border-[#8FB7FF] group-hover:bg-white/[0.08]">
               <span className="flex-1 pl-3 text-left text-[15px] text-gray">
                 AI 상담을 원하시면 여기를 눌러주세요
               </span>
