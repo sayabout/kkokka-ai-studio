@@ -14,11 +14,12 @@ export default function ConsultPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [savedRef, setSavedRef] = useState<string | null>(null);
 
   // ── 동의 게이트 상태 ──
-  const [agreed, setAgreed] = useState(false);        // 동의 완료 여부
-  const [showGate, setShowGate] = useState(false);     // 동의 팝업 표시 여부
-  const [pendingText, setPendingText] = useState("");  // 동의 대기 중인 첫 질문
+  const [agreed, setAgreed] = useState(false);
+  const [showGate, setShowGate] = useState(false);
+  const [pendingText, setPendingText] = useState("");
   const [company, setCompany] = useState("");
   const [phone, setPhone] = useState("");
   const [agree, setAgree] = useState(false);
@@ -31,23 +32,19 @@ export default function ConsultPage() {
   const canEnter = company.trim().length >= 2 && phone.trim().length >= 8 && agree;
   const visitorName = `${company.trim()} / ${phone.trim()}`;
 
-  // 입력창에서 전송 눌렀을 때
   function handleSend() {
     const text = input.trim();
     if (!text || loading || done) return;
 
-    // 아직 동의 전이면 → 첫 질문을 잠시 보관하고 동의 팝업 띄움
     if (!agreed) {
       setPendingText(text);
       setInput("");
       setShowGate(true);
       return;
     }
-    // 동의 후엔 바로 전송
     sendToAI(text);
   }
 
-  // 동의 완료 → 보관한 첫 질문 전송
   function confirmGate() {
     if (!canEnter) return;
     setAgreed(true);
@@ -69,11 +66,15 @@ export default function ConsultPage() {
         body: JSON.stringify({
           messages: next.map((m) => ({ role: m.role, content: m.content })),
           visitorName,
+          company: company.trim(),
+          phone: phone.trim(),
+          savedRef,
         }),
       });
       const data = await res.json();
       if (data.ok) {
         setMessages([...next, { role: "assistant", content: data.reply }]);
+        if (data.savedRef) setSavedRef(data.savedRef);
         if (data.done) setDone(true);
       } else {
         setMessages([...next, { role: "assistant", content: data.error || "잠시 후 다시 시도해주세요." }]);
