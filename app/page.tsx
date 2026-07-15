@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import HeroVideo from "@/components/HeroVideo";
 import HomeWorks from "@/components/HomeWorks";
 import { createAdminClient } from "@/lib/supabase/admin";
+import CapabilitiesSection from "@/components/CapabilitiesSection";   // ← 이 줄 추가
 
 export const revalidate = 0;
 
