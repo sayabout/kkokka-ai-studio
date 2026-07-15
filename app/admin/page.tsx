@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import AdminShell from "@/components/AdminShell";
 import DataTable, { Column } from "@/components/DataTable";
+import CapabilitiesManage from "@/components/CapabilitiesManage";
 
 export default function AdminPage() {
   const [page, setPage] = useState("dashboard");
@@ -13,6 +14,7 @@ export default function AdminPage() {
       {page === "members" && <Members />}
       {page === "home" && <HomeManage />}
       {page === "works" && <WorksManage />}
+      {page === "capabilities" && <CapabilitiesManage />}
       {page === "memo" && <Memo />}
       {page === "footer" && <FooterManage />}
       {!["dashboard", "inquiries", "members", "home", "works", "memo", "footer"].includes(page) && (

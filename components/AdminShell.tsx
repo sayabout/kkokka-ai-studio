@@ -23,6 +23,7 @@ export const MENU: MenuGroup[] = [
   { group: "콘텐츠", items: [
     { id: "works", label: "포트폴리오 관리" },
     { id: "home", label: "홈 화면 · 영상 관리" },
+    { id: "capabilities", label: "홈 엔진·도구" },
     { id: "pages", label: "페이지/문구 관리" },
     { id: "media", label: "미디어 라이브러리" },
   ]},
